@@ -5,26 +5,19 @@ import org.gedcomx.conclusion.Person;
 import org.gedcomx.rs.client.PersonState;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
 
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by tyganshelton on 6/22/2015.
  */
 public class App {
 
-  @Option( name = "-u", aliases = {"--username"}, required = false, usage = "The username of the user connecting to the Family Tree" )
-  private String username;
-
-  @Option ( name = "-p", aliases = {"--password"}, required = false, usage = "The password of the user connecting to the Family Tree" )
-  private String password;
-
-  @Option ( name = "-d", aliases = {"--devkey"}, required = false, usage = "The dev key to use for the Family Tree" )
-  private String devkey;
-
-  @Option( name = "-i", aliases = {"--pid"}, required = false, usage = "The pid the user wishes to look up" )
-  private String pid;
+  private String username = ""; //Put username here
+  private String password = ""; //Put password here
+  private String devkey = ""; //Put devkey here
+  private String pid = null;
 
   private FamilySearchFamilyTree familySearchFamilyTree = null;
 
@@ -35,6 +28,10 @@ public class App {
   }
 
   public void doMain() {
+
+    System.out.println("Enter PID to look up:");
+    Scanner scanner = new Scanner(System.in);
+    pid = scanner.next();
 
     //Get person
     PersonState personState = familySearchFamilyTree.readPersonById(pid).ifSuccessful();
