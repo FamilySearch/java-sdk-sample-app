@@ -31,9 +31,9 @@ import static org.familysearch.api.client.util.FamilySearchOptions.reason;
  */
 public class App2 {
 
-  String username = "lyonrw";       //Insert username here
-  String password = "1234pass";       //Insert username here
-  String developerKey = "PWRD-4Y6P-8DNG-LTV9-XDD2-JBVG-R9BD-NRRP";   //Insert username here
+  String username = "";       //Insert username here
+  String password = "";       //Insert username here
+  String developerKey = "";   //Insert username here
 
   FamilySearchFamilyTree ft = null;
 
@@ -125,6 +125,7 @@ public class App2 {
       reason("Because I said so.")
     ).ifSuccessful();
   }
+
 
   //Create a Couple Relationship in the Family Tree
   public void createCouple () {
@@ -460,7 +461,6 @@ public class App2 {
 //      person3.addMediaReference(artifact); //attach to person3
   }
 
-
   public static void main(String[] args){
     App2 app = new App2();
 
@@ -473,5 +473,44 @@ public class App2 {
     } catch (Exception e) {
           e.printStackTrace();
     }
+  }
+
+  PersonState person = null;
+  PersonState papa = null;
+  PersonState mama = null;
+
+  //Sets up objects to be used by example methods
+  private void setUp () {
+    //Used as person and child
+    this.person = ft.addPerson(new Person()
+            .name(new Name("Jack Sprat", new NamePart(NamePartType.Given, "Jack"), new NamePart(NamePartType.Surname, "Sprat")).preferred(true))
+            .gender(GenderType.Male)
+            .fact(new Fact(FactType.Birth, "1 January 1890", "Chicago, Illinois"))
+            .fact(new Fact(FactType.Death, "1 January 1970", "New York, New York")),
+        reason("Because I said so.")
+    ).ifSuccessful();
+
+    //Used as husband and father
+    this.papa = ft.addPerson(new Person()
+            .name(new Name("Papa Moose", new NamePart(NamePartType.Given, "Papa"), new NamePart(NamePartType.Surname, "Moose")).preferred(true))
+            .gender(GenderType.Male)
+            .fact(new Fact(FactType.Birth, "1 January 1865", "Chicago, Illinois"))
+            .fact(new Fact(FactType.Death, "1 January 1945", "New York, New York")),
+        reason("Because I said so.")
+    ).ifSuccessful();
+
+    //Used as wife and mother
+    this.mama = ft.addPerson(new Person()
+            .name(new Name("Mother Goose", new NamePart(NamePartType.Given, "Mother"), new NamePart(NamePartType.Surname, "Goose")).preferred(true))
+            .gender(GenderType.Male)
+            .fact(new Fact(FactType.Birth, "1 January 1865", "Chicago, Illinois"))
+            .fact(new Fact(FactType.Death, "1 January 1945", "New York, New York")),
+        reason("Because I said so.")
+    ).ifSuccessful();
+
+  }
+
+  //Cleans up objects used by example methods
+  private void tearDown () {
   }
 }
