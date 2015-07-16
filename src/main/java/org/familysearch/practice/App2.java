@@ -1,18 +1,33 @@
 package org.familysearch.practice;
 
+import org.familysearch.api.client.PersonMatchResultsState;
 import org.familysearch.api.client.ft.FamilySearchFamilyTree;
 import org.familysearch.api.client.ft.FamilyTreePersonState;
+import org.gedcomx.atom.Entry;
+import org.gedcomx.conclusion.Fact;
+import org.gedcomx.conclusion.Name;
+import org.gedcomx.conclusion.NamePart;
+import org.gedcomx.conclusion.Person;
+import org.gedcomx.rs.client.PersonSearchResultsState;
+import org.gedcomx.rs.client.PersonState;
+import org.gedcomx.rs.client.util.GedcomxPersonSearchQueryBuilder;
+import org.gedcomx.types.FactType;
+import org.gedcomx.types.GenderType;
+import org.gedcomx.types.NamePartType;
 
 import java.net.URI;
+import java.util.List;
+
+import static org.familysearch.api.client.util.FamilySearchOptions.reason;
 
 /**
  * Created by tyganshelton on 7/16/2015.
  */
 public class App2 {
 
-  String username = "";       //Insert username here
-  String password = "";       //Insert username here
-  String developerKey = "";   //Insert username here
+  String username = "lyonrw";       //Insert username here
+  String password = "1234pass";       //Insert username here
+  String developerKey = "PWRD-4Y6P-8DNG-LTV9-XDD2-JBVG-R9BD-NRRP";   //Insert username here
 
   FamilySearchFamilyTree ft = null;
 
@@ -55,12 +70,49 @@ public class App2 {
 
     //Search for Persons or Person Matches in the Family Tree
     public void searchForMatch () {
+      FamilySearchFamilyTree ft = this.ft;
 
+      //put together a search query
+      GedcomxPersonSearchQueryBuilder query = new GedcomxPersonSearchQueryBuilder()
+          //for a John Smith
+        .name("John Smith")
+            //born 1/1/1900
+        .birthDate("1 January 1900")
+            //son of Peter.
+        .fatherName("Peter Smith");
+
+      //search the collection
+      PersonSearchResultsState results = ft.searchForPersons(query);
+      //iterate through the results...
+      List<Entry> entries = results.getResults().getEntries();
+      //read the person that was hit
+      PersonState person = results.readPerson(entries.get(0));
+
+      //search the collection for matches
+      PersonMatchResultsState matches = ft.searchForPersonMatches(query);
+      //iterate through the results...
+      entries = results.getResults().getEntries();
+      //read the person that was matched
+      person = results.readPerson(entries.get(0));
     }
 
     //Create Person in the Family Tree
     public void createPerson () {
+      FamilySearchFamilyTree ft = this.ft;
 
+      //add a person
+      PersonState person = ft.addPerson(new Person()
+      //named John Smith
+        .name(new Name("John Smith", new NamePart(NamePartType.Given, "John"), new NamePart(NamePartType.Surname, "Smith")))
+        //male
+        .gender(GenderType.Male)
+        //born in chicago in 1920
+        .fact(new Fact(FactType.Birth, "1 January 1920", "Chicago, Illinois"))
+        //died in new york 1980
+        .fact(new Fact(FactType.Death, "1 January 1980", "New York, New York")),
+        //with a change message.
+        reason("Because I said so.")
+      );
     }
 
     //Create a Couple Relationship in the Family Tree
@@ -213,7 +265,10 @@ public class App2 {
 
       try {
         app.readFamilyTree();
-        app.readPersonByFtId(false);
+//        app.readPersonByPersistentId();
+        app.readPersonByFtId(true);
+        app.searchForMatch();
+        app.createPerson();
       } catch (Exception e) {
             e.printStackTrace();
       }
