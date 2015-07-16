@@ -14,6 +14,7 @@ import org.gedcomx.conclusion.NamePart;
 import org.gedcomx.conclusion.Person;
 import org.gedcomx.rs.client.PersonSearchResultsState;
 import org.gedcomx.rs.client.PersonState;
+import org.gedcomx.rs.client.RelationshipState;
 import org.gedcomx.rs.client.SourceDescriptionState;
 import org.gedcomx.rs.client.util.GedcomxPersonSearchQueryBuilder;
 import org.gedcomx.source.SourceDescription;
@@ -48,18 +49,17 @@ public class App2 {
   }
   ///Runs successfully
 
-  //TODO: Fix-Returns 401 because ft is not sandbox. It's not obvious how to make it sandbox
   //Read a Family Tree Person by Persistent ID
+  //Note: Does not work on sandbox
   public void readPersonByPersistentId () {
     String username = this.username;
     String password = this.password;
     String developerKey = this.developerKey;
 
-    String ark = "https://sandbox.familysearch.org/ark:/61903/4:1:KW41-FDB";
+    String ark = "https://familysearch.org/ark:/61903/4:1:LCJ6-DVV";
     FamilyTreePersonState person = new FamilyTreePersonState(URI.create(ark))
       .authenticateViaOAuth2Password(username, password, developerKey);
   }
-
 
   //Read a Family Person by Family Tree ID, with or without relationships
   public void readPersonByFtId (boolean withRelationships) {
@@ -106,7 +106,6 @@ public class App2 {
   }
   ///Runs successfully
 
-  //TODO: Fix-returns 400 for unknown reason
   //Create Person in the Family Tree
   public void createPerson () {
     FamilySearchFamilyTree ft = this.ft;
@@ -125,16 +124,16 @@ public class App2 {
       reason("Because I said so.")
     ).ifSuccessful();
   }
-
+  //Runs successfully
 
   //Create a Couple Relationship in the Family Tree
   public void createCouple () {
-//      FamilySearchFamilyTree ft = this.ft;
-//
-//      PersonState husband = ...;
-//      PersonState wife = ...;
-//
-//      RelationshipState coupleRelationship = ft.addSpouseRelationship(husband, wife, reason("Because I said so."));
+      FamilySearchFamilyTree ft = this.ft;
+
+      PersonState husband = papa;
+      PersonState wife = mama;
+
+      RelationshipState coupleRelationship = ft.addSpouseRelationship(husband, wife, reason("Because I said so."));
   }
 
   //Create a Child-and-Parents Relationship in the Family Tree
@@ -466,10 +465,10 @@ public class App2 {
 
     try {
       app.readFamilyTree();
-//        app.readPersonByPersistentId();
       app.readPersonByFtId(true);
       app.searchForMatch();
       app.createPerson();
+      app.createCouple();
     } catch (Exception e) {
           e.printStackTrace();
     }
