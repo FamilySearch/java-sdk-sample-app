@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.gedcomx.extensions.familysearch</groupId>
             <artifactId>familysearch-api-client</artifactId>
-            <version>1.0.83.M1</version>
+            <version>1.0.129.M1</version>
         </dependency>
 
     </dependencies>
