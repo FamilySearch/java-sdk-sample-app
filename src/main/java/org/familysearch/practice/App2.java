@@ -2,6 +2,7 @@ package org.familysearch.practice;
 
 import org.familysearch.api.client.DiscussionState;
 import org.familysearch.api.client.PersonMatchResultsState;
+import org.familysearch.api.client.ft.ChildAndParentsRelationshipState;
 import org.familysearch.api.client.ft.FamilySearchFamilyTree;
 import org.familysearch.api.client.ft.FamilyTreePersonState;
 import org.familysearch.api.client.memories.FamilySearchMemories;
@@ -12,12 +13,10 @@ import org.gedcomx.conclusion.Fact;
 import org.gedcomx.conclusion.Name;
 import org.gedcomx.conclusion.NamePart;
 import org.gedcomx.conclusion.Person;
-import org.gedcomx.rs.client.PersonSearchResultsState;
-import org.gedcomx.rs.client.PersonState;
-import org.gedcomx.rs.client.RelationshipState;
-import org.gedcomx.rs.client.SourceDescriptionState;
+import org.gedcomx.rs.client.*;
 import org.gedcomx.rs.client.util.GedcomxPersonSearchQueryBuilder;
 import org.gedcomx.source.SourceDescription;
+import org.gedcomx.source.SourceReference;
 import org.gedcomx.types.FactType;
 import org.gedcomx.types.GenderType;
 import org.gedcomx.types.NamePartType;
@@ -32,11 +31,15 @@ import static org.familysearch.api.client.util.FamilySearchOptions.reason;
  */
 public class App2 {
 
-  String username = "";       //Insert username here
-  String password = "";       //Insert username here
-  String developerKey = "";   //Insert username here
+  private String username = "";       //Insert username here
+  private String password = "";       //Insert username here
+  private String developerKey = "";   //Insert username here
 
-  FamilySearchFamilyTree ft = null;
+  private FamilySearchFamilyTree ft = null;
+
+  private PersonState person;
+  private PersonState papa;
+  private PersonState mama;
 
   //Read the FamilySearch Family Tree
   public void readFamilyTree () {
@@ -112,49 +115,52 @@ public class App2 {
 
     //add a person
     PersonState person = ft.addPerson(new Person()
-    //named John Smith
-      .name(new Name("John Smith", new NamePart(NamePartType.Given, "John"), new NamePart(NamePartType.Surname, "Smith")).preferred(true))
-      //male
-      .gender(GenderType.Male)
-      //born in chicago in 1920
-      .fact(new Fact(FactType.Birth, "1 January 1920", "Chicago, Illinois"))
-      //died in new york 1980
-      .fact(new Fact(FactType.Death, "1 January 1980", "New York, New York")),
-      //with a change message.
-      reason("Because I said so.")
+            //named John Smith
+            .name(new Name("John Smith", new NamePart(NamePartType.Given, "John"), new NamePart(NamePartType.Surname, "Smith")).preferred(true))
+                //male
+            .gender(GenderType.Male)
+                //born in chicago in 1920
+            .fact(new Fact(FactType.Birth, "1 January 1920", "Chicago, Illinois"))
+                //died in new york 1980
+            .fact(new Fact(FactType.Death, "1 January 1980", "New York, New York")),
+        //with a change message.
+        reason("Because I said so.")
     ).ifSuccessful();
   }
-  //Runs successfully
+  ///Runs successfully
 
   //Create a Couple Relationship in the Family Tree
   public void createCouple () {
       FamilySearchFamilyTree ft = this.ft;
 
-      PersonState husband = papa;
-      PersonState wife = mama;
+      PersonState husband = this.papa;
+      PersonState wife = this.mama;
 
-      RelationshipState coupleRelationship = ft.addSpouseRelationship(husband, wife, reason("Because I said so."));
+      RelationshipState coupleRelationship = ft.addSpouseRelationship(husband, wife, reason("Because I said so.")).ifSuccessful();
   }
+  ///Runs successfully
 
   //Create a Child-and-Parents Relationship in the Family Tree
   public void createChildParent () {
-//      FamilySearchFamilyTree ft = this.ft;
-//
-//      PersonState father = ...;
-//      PersonState mother = ...;
-//      PersonState child = ...;
-//
-//      ChildAndParentsRelationshipState chap = ft.addChildAndParentsRelationship(child, father, mother, reason("Because I said so."));
+      FamilySearchFamilyTree ft = this.ft;
+
+      PersonState father = this.papa;
+      PersonState mother = this.mama;
+      PersonState child = this.person;
+
+      ChildAndParentsRelationshipState chap = ft.addChildAndParentsRelationship(child, father, mother, reason("Because I said so."));
   }
+  ///Runs successfully
 
   //Create a Source
+  //TODO: Confirm this doesn't work because of the ark
   public void createSource () {
     FamilySearchFamilyTree ft = this.ft;
 
     //add a source description
     SourceDescriptionState source = ft.addSourceDescription(new SourceDescription()
       //about some resource.
-      .about(org.gedcomx.common.URI.create("http://familysearch.org/ark:/..."))
+      .about(org.gedcomx.common.URI.create("https://sandbox.familysearch.org/ark:/61903/4:1:KWHL-3TP"))
       //with a title.
       .title("Birth Certificate for John Smith")
       //and a citation
@@ -167,6 +173,7 @@ public class App2 {
   }
 
   //Create a Source Reference
+  //TODO: Figure out how to create SourceDescriptionState
   public void createSourceReference () {
     //the person that will be citing the record, source, or artifact.
 //      PersonState person = ...;
@@ -177,6 +184,7 @@ public class App2 {
   }
 
   //Read Everything Attached to a Source
+  //TODO: Create source to read, attach to person
   public void readSource () {
     //the source.
 //      SourceDescriptionState source = ...;
@@ -193,20 +201,23 @@ public class App2 {
 
     PersonState person = ft.readPersonForCurrentUser();
   }
+  //Runs successfully
 
   //Read Source References
+  //TODO: Create source references to be read
   public void readSourceReferences () {
     //the person on which to read the source references.
-//      PersonState person = ...;
-//
-//      //load the source references for the person.
-//      person.loadSourceReferences();
-//
-//      //read the source references.
-//      List<SourceReference> sourceRefs = person.getPerson().getSources();
+      PersonState person = this.person;
+
+      //load the source references for the person.
+      person.loadSourceReferences();
+
+      //read the source references.
+      List<SourceReference> sourceRefs = person.getPerson().getSources();
   }
 
-    //Read Persona References
+  //Read Persona References
+  //TODO: Create persona references to be read
   public void readPersonaReferences () {
     //the person on which to read the persona references.
 //      PersonState person = ...;
@@ -219,6 +230,7 @@ public class App2 {
   }
 
   //Read Discussion References
+  //TODO: Create DiscussionReferences to read
   public void readDiscussionReferences () {
     //the person on which to read the discussion references.
 //      PersonState person = ...;
@@ -231,6 +243,7 @@ public class App2 {
   }
 
   //Read Notes
+  //TODO: Create notes to read
   public void readNotes () {
 //      //the person on which to read the notes.
 //      PersonState person = ...;
@@ -243,11 +256,12 @@ public class App2 {
   }
 
   //Read Parents, Children, or Spouses
+  //TODO: Fix-personState returns null parents and all other fields
   public void readParents () {
     //the person for which to read the parents
-//      PersonState person = ...;
-//
-//      PersonParentsState parents = person.readParents(); //read the parents
+    PersonState person = this.person;
+
+    PersonParentsState parents = person.readParents(); //read the parents
   }
 
   public void readChildren () {
@@ -465,18 +479,18 @@ public class App2 {
 
     try {
       app.readFamilyTree();
+      app.setUp();
       app.readPersonByFtId(true);
       app.searchForMatch();
       app.createPerson();
       app.createCouple();
+      app.createChildParent();
+      app.readPersonForCurrentUser();
+      app.readParents();
     } catch (Exception e) {
           e.printStackTrace();
     }
   }
-
-  PersonState person = null;
-  PersonState papa = null;
-  PersonState mama = null;
 
   //Sets up objects to be used by example methods
   private void setUp () {
@@ -501,11 +515,12 @@ public class App2 {
     //Used as wife and mother
     this.mama = ft.addPerson(new Person()
             .name(new Name("Mother Goose", new NamePart(NamePartType.Given, "Mother"), new NamePart(NamePartType.Surname, "Goose")).preferred(true))
-            .gender(GenderType.Male)
+            .gender(GenderType.Female)
             .fact(new Fact(FactType.Birth, "1 January 1865", "Chicago, Illinois"))
             .fact(new Fact(FactType.Death, "1 January 1945", "New York, New York")),
         reason("Because I said so.")
     ).ifSuccessful();
+
 
   }
 
