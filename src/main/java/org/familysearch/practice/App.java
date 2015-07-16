@@ -14,16 +14,17 @@ import java.util.Scanner;
  */
 public class App {
 
-  private String username = ""; //Put username here
-  private String password = ""; //Put password here
-  private String devkey = ""; //Put devkey here
+  private String username = "lyonrw"; //Put username here
+  private String password = "1234pass"; //Put password here
+  private String developerKey = "PWRD-4Y6P-8DNG-LTV9-XDD2-JBVG-R9BD-NRRP"; //Put developerKey here
   private String pid = null;
+  private FamilySearchFamilyTree ft = null;
 
   private FamilySearchFamilyTree familySearchFamilyTree = null;
 
   public void setUp(CmdLineParser parser){
     this.familySearchFamilyTree = new FamilySearchFamilyTree(true)    //true signifies sandbox
-            .authenticateViaOAuth2Password(username, password, devkey).ifSuccessful()
+            .authenticateViaOAuth2Password(username, password, developerKey).ifSuccessful()
             .get().ifSuccessful();
   }
 
@@ -134,7 +135,60 @@ public class App {
 
     //Get Id
     System.out.println("ID: " + person.getId());
+
+    //AncestryResultsState ancestryResultsState = personState.readAncestry();
+
+   // ancestryResultsState.getSelfRel();
+    //PersonState personState2 = ancestryResultsState.readPerson(0);
+    //ancestryResultsState.
+    //personState.readParents().readPerson();
+    //personState.readParents().readParent();
   }
+
+  public void try2(){
+    //add a person
+//    PersonState person2 = familySearchFamilyTree.addPerson(new Person()
+//                    //named John Smith
+//                    .name(new Name("Xohn Xmith", new NamePart(NamePartType.Given, "John"), new NamePart(NamePartType.Surname, "Smith")))
+//                            //male
+//                    .gender(GenderType.Male)
+//                            //born in chicago in 1920
+//                    .fact(new Fact(FactType.Birth, "1 January 1920", "Chicago, Illinois"))
+//                            //died in new york 1980
+//                    .fact(new Fact(FactType.Death, "1 January 1980", "New York, New York")),
+//            //with a change message.
+//            reason("Because I said so.")
+//
+//    );
+//    System.out.println(person2.getPerson().getId());
+    pid = "KWHK-FQR";
+    PersonState personState = familySearchFamilyTree.readPersonById(pid).ifSuccessful();
+    Person person = personState.getPerson();///
+
+  }
+
+  //Read the FamilySearch Family Tree
+  public void readFamilyTree (String username, String password, String developerKey) {
+    boolean useSandbox = true; //whether to use the sandbox reference.
+    this.username = username;
+    this.password = password;
+    this.developerKey = developerKey;
+
+    //read the Family Tree
+    this.ft = new FamilySearchFamilyTree(useSandbox)
+      //and authenticate.
+      .authenticateViaOAuth2Password(username, password, developerKey);
+  }
+
+  public void readPersonByPersistentId () {
+
+  }
+
+  public void readPersonByFTId () {
+
+  }
+
+
 
   public static void main(String[] args){
     App app = new App();
@@ -142,7 +196,8 @@ public class App {
     try {
       parser.parseArgument(args);
       app.setUp(parser);
-      app.doMain();
+      app.try2();
+      //app.doMain();
     }
     catch (CmdLineException e) {
       System.err.println(e.getMessage());
