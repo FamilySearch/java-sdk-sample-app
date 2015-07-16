@@ -41,7 +41,7 @@ public class App2 {
       .authenticateViaOAuth2Password(username, password, developerKey);
     }
 
-    ///Returns 401 because ft is not sandbox. It's not obvious how to make it sandbox
+    //TODO: Fix-Returns 401 because ft is not sandbox. It's not obvious how to make it sandbox
     //Read a Family Tree Person by Persistent ID
     public void readPersonByPersistentId () {
       String username = this.username;
@@ -96,6 +96,7 @@ public class App2 {
       person = results.readPerson(entries.get(0));
     }
 
+    //TODO: Fix-returns 400 for unknown reason
     //Create Person in the Family Tree
     public void createPerson () {
       FamilySearchFamilyTree ft = this.ft;
