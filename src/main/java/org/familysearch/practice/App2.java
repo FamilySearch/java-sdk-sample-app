@@ -2,6 +2,7 @@ package org.familysearch.practice;
 
 import org.familysearch.api.client.DiscussionState;
 import org.familysearch.api.client.PersonMatchResultsState;
+import org.familysearch.api.client.PersonNonMatchesState;
 import org.familysearch.api.client.ft.ChildAndParentsRelationshipState;
 import org.familysearch.api.client.ft.FamilySearchFamilyTree;
 import org.familysearch.api.client.ft.FamilyTreePersonState;
@@ -9,10 +10,7 @@ import org.familysearch.api.client.memories.FamilySearchMemories;
 import org.familysearch.platform.discussions.Discussion;
 import org.gedcomx.atom.Entry;
 import org.gedcomx.common.Note;
-import org.gedcomx.conclusion.Fact;
-import org.gedcomx.conclusion.Name;
-import org.gedcomx.conclusion.NamePart;
-import org.gedcomx.conclusion.Person;
+import org.gedcomx.conclusion.*;
 import org.gedcomx.rs.client.*;
 import org.gedcomx.rs.client.util.GedcomxPersonSearchQueryBuilder;
 import org.gedcomx.source.SourceDescription;
@@ -20,7 +18,10 @@ import org.gedcomx.source.SourceReference;
 import org.gedcomx.types.FactType;
 import org.gedcomx.types.GenderType;
 import org.gedcomx.types.NamePartType;
+import org.gedcomx.types.NameType;
 
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import java.net.URI;
 import java.util.List;
 
@@ -31,15 +32,17 @@ import static org.familysearch.api.client.util.FamilySearchOptions.reason;
  */
 public class App2 {
 
-  private String username = "";       //Insert username here
-  private String password = "";       //Insert username here
-  private String developerKey = "";   //Insert username here
+  private String username = "";       //Put username here
+  private String password = "";       //Put username here
+  private String developerKey = "";   //Put username here
 
   private FamilySearchFamilyTree ft = null;
 
   private PersonState person;
   private PersonState papa;
   private PersonState mama;
+  private FamilySearchMemories fsMemories;
+  private PersonState persona;
 
   //Read the FamilySearch Family Tree
   public void readFamilyTree () {
@@ -153,7 +156,6 @@ public class App2 {
   ///Runs successfully
 
   //Create a Source
-  //TODO: Confirm this doesn't work because of the ark
   public void createSource () {
     FamilySearchFamilyTree ft = this.ft;
 
@@ -171,6 +173,7 @@ public class App2 {
       reason("Because I said so.")
     );
   }
+  //Runs successfully
 
   //Create a Source Reference
   //TODO: Figure out how to create SourceDescriptionState
@@ -259,111 +262,125 @@ public class App2 {
   //TODO: Fix-personState returns null parents and all other fields
   public void readParents () {
     //the person for which to read the parents
-    PersonState person = this.person;
+    PersonState person = this.person.get();   //Call PersonState.get() to repull the person's info
 
-    PersonParentsState parents = person.readParents(); //read the parents
+    PersonParentsState parents = person.readParents().ifSuccessful(); //read the parents
   }
+  //Runs successfully
 
   public void readChildren () {
     //the person for which to read the children
-//      PersonState person = ...;
-//
-//      PersonChildrenState children = person.readChildren(); //read the children
+    PersonState person = this.papa.get();
+
+    PersonChildrenState children = person.readChildren(); //read the children
+    List<Person> persons = children.getPersons();
   }
+  //Runs successfully
 
   public void readSpouses () {
     //the person for which to read the spouses
-//      PersonState person = ...;
-//
-//      PersonSpousesState spouses = person.readSpouses(); //read the spouses
+    PersonState person = this.mama.get();
+
+    PersonSpousesState spouses = person.readSpouses(); //read the spouses
+    List<Person> persons = spouses.getPersons();
   }
+  //Runs successfully
 
   //Read Ancestry or Descendancy
   public void readAncestry () {
-////the person for which to read the ancestry or descendancy
-//      PersonState person = ...;
+  //the person for which to read the ancestry or descendancy
+//    PersonState person = this.person;
 //
-//      person.readAncestry(); //read the ancestry
-//      person.readAncestry(generations(8)); //read 8 generations of the ancestry
+//    person.readAncestry(); //read the ancestry
+//    person.readAncestry(generations(8)); //read 8 generations of the ancestry
   }
 
   public void readDescendency () {
 ////the person for which to read the ancestry or descendancy
-//      PersonState person = ...;
+//      PersonState person = this.papa;
 //
 //      person.readDescendancy(); //read the descendancy
 //      person.readDescendancy(generations(3)); //read 3 generations of the descendancy
   }
 
-  //Read Person Matches (i.e., Possible Duplicates
+  //Read Person Matches (i.e., Possible Duplicates)
   public void readPersonMatches () {
     //the person for which to read the matches
-//      PersonState person = ...;
-//
-//      PersonMatchResultsState matches = ((FamilyTreePersonState) person).readMatches();
-//
-//      //iterate through the matches.
-//      List<Entry> entries = matches.getResults().getEntries();
+    PersonState person = this.person.get();
+
+    PersonMatchResultsState matches = ((FamilyTreePersonState) person).readMatches();
+
+    //iterate through the matches.
+    List<Entry> entries = matches.getResults().getEntries();
   }
+  //Runs successfully
 
   //Declare Not a Match
+  //TODO: fix-Does not affect possible duplicate and returns null
   public void declareNotAMatch () {
     //the match results
-//      PersonMatchResultsState matches = ...;
-//
-//      //iterate through the matches.
-//      List<Entry> entries = matches.getResults().getEntries();
-//
-//      matches.addNonMatch(entries.get(2), reason("Because I said so."));
+    PersonState person = this.person.get();
+    PersonMatchResultsState matches = ((FamilyTreePersonState) person).readMatches();
+
+    //iterate through the matches.
+    List<Entry> entries = matches.getResults().getEntries();
+
+    PersonNonMatchesState state = matches.addNonMatch(entries.get(2), reason("Because I said so.")).ifSuccessful();
   }
 
   //Add a Name or Fact
+  //TODO: Fix-"Requested feature 'birth-date-not-considered-death-declaration' is not defined."
   public void addName () {
     //the person to which to add the name
-//      PersonState person = ...;
-//
-//      Name name = ...;
-//      person.addName(name.type(NameType.AlsoKnownAs), reason("Because I said so.")); //add name
+      PersonState person = this.person.get();
+
+      Name name = new Name("Billy Goat");
+      person.addName(name.type(NameType.AlsoKnownAs), reason("Because I said so.")).ifSuccessful(); //add name
   }
 
   public void addFact () {
       //the person to which to add the fact.
-//      PersonState person = ...;
-//
-//      person.addFact(new Fact(FactType.Death, "date", "place"), reason("Because I said so.")); //add death fact
-  }
+      PersonState person = this.person;
 
-  //add gender
+      PersonState j = person.addFact(new Fact(FactType.Death, "1955", "Sweden"), reason("Because I said so.")).ifSuccessful(); //add death fact
+  }
+  //Runs successfully
+
+ //Add gender? Maybe not necessary
 
   //Update a Name, Gender, or Fact
   public void updateName () {
     //the person to which to update the name.
-//      PersonState person = ...;
-//
-//      Name name = person.getName();
-//      name.getNameForm().setFullText("Joanna Smith");
-//      person.updateName(name, reason("Because I said so.")); //update name
+    PersonState person = this.person.get();
+
+    Name name = person.getName();
+    name.getNameForm().setFullText("Tweedle Dum");
+    person.updateName(name, reason("Because I said so.")); //update name
   }
+  //Runs successfully
 
   public void updateGender () {
-      //the person to which to update the gender.
-//      PersonState person = ...;
-//
-//      Gender gender = person.getGender();
-//      gender.setKnownType(GenderType.Female);
-//      person.updateGender(gender, reason("Because I said so.")); //update gender
+    //the person to which to update the gender.
+    PersonState person = this.person.get();
+
+    Gender gender = person.getGender();
+    gender.setKnownType(GenderType.Female);
+    person.updateGender(gender, reason("Because I said so.")); //update gender
   }
+  //Runs successfully
 
   public void updateFact () {
-      //the person to which to update the fact.
-//      PersonState person = ...;
-//
-//      Fact death = person.getPerson().getFirstFactOfType(FactType.Death);
-//      death.setDate(new Date().original("new date"));
-//      person.updateFact(death, reason("Because I said so."));
+    //the person to which to update the fact.
+    PersonState person = this.person.get();
+
+    Fact death = person.getPerson().getFirstFactOfType(FactType.Death);
+    death.setDate(new Date().original("1985"));
+    person.updateFact(death, reason("Because I said so."));
   }
+  //Runs successfully
 
   //Create a Discussion
+  //TODO: Fix-Returns 400 "Requested feature 'birth-date-not-considered-death-declaration' is not defined."
   public void createDiscussion () {
     FamilySearchFamilyTree ft = this.ft;
 
@@ -373,7 +390,7 @@ public class App2 {
       .title("What about this"),
       //with a change message.
       reason("Because I said so.")
-    );
+    ).ifSuccessful();
   }
 
   //Attach a Discussion
@@ -387,20 +404,23 @@ public class App2 {
   }
 
   //Attach a Photo to a Person
+  //TODO: fix-without .ifSuccessful, returns 409 Conflict. With, causes birth-date-not-considered-death-date error
   public void attachPhotoToPerson () {
     //the person to which the photo will be attached.
-//      PersonState person = ...;
-//      DataSource digitalImage = new FileDataSource("/path/to/img.jpg");
-//
-//      //add an artifact
-//      SourceDescriptionState artifact = person.addArtifact(new SourceDescription()
-//        //with a title
-//        .title("Portrait of John Smith"),
-//        digitalImage
-//      );
+    PersonState person = this.person.get();
+    DataSource digitalImage = new FileDataSource("TweedleDum.jpg");
+
+    //add an artifact
+    SourceDescriptionState artifact = person.addArtifact(new SourceDescription()
+            //with a title
+            .title("Portrait of Tweedle Dum"),
+        digitalImage
+    );
   }
+  //WAS running successfully
 
   //Read FamilySearch Memories
+  //TODO: Find a specific memory
   public void readMemories () {
     boolean useSandbox = true; //whether to use the sandbox reference.
     String username = this.username;
@@ -411,32 +431,42 @@ public class App2 {
     FamilySearchMemories fsMemories = new FamilySearchMemories(useSandbox)
       //and authenticate.
       .authenticateViaOAuth2Password(username, password, developerKey);
+    this.fsMemories = fsMemories;
   }
+  //Runs successfully
 
   //Upload Photo or Story or Document
+  //TODO: fix-returned 409: "Requested feature 'birth-date-not-considered-death-declaration' is not defined."
   public void uploadArtifact () {
-//      FamilySearchMemories fsMemories = ...;
-//      DataSource digitalImage = new FileDataSource("/path/to/img.jpg");
-//
-//      //add an artifact
-//      SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
-//        //with a title
-//        .title("Death Certificate for John Smith")
-//        //and a citation
-//        .citation("Citation for the death certificate"),
-//        digitalImage
-//      );
+      FamilySearchMemories fsMemories = this.fsMemories;
+      DataSource digitalImage = new FileDataSource("Obituary.jpg");
+
+      //add an artifact
+      SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
+        //with a title
+        .title("Obituary for Tweedle Dum")
+        //and a citation
+        .citation("Generic Newspaper, 7 Aug 1955, page 1"),
+        digitalImage
+      ).ifSuccessful();
   }
 
   //Create a Memory Persona
+  //TODO: Does sandbox not support adding artifacts?
   public void createMemoryPersona () {
+    DataSource digitalImage = new FileDataSource("TweedleDum.jpg");
+    PersonState person = this.person.get();
     //the artifact from which a persona will be extracted.
-//      SourceDescriptionState artifact = ...;
-//
-//      //add the persona
-//      PersonState persona = artifact.addPersona(new Person()
-//        //named John Smith
-//        .name("John Smith"));
+    SourceDescriptionState artifact = person.addArtifact(new SourceDescription()
+          .title("Portrait of Tweedle Dee Dum"),
+        digitalImage
+    );
+
+    //add the persona
+    PersonState persona = artifact.addPersona(new Person()
+        //named Tweedle Dee Dum
+        .name("Tweedle Dee Dum"));
+    this.persona = persona;
   }
 
   //Create a Persona Reference
@@ -485,8 +515,34 @@ public class App2 {
       app.createPerson();
       app.createCouple();
       app.createChildParent();
+      app.createSource();
+      //app.createSourceReference();
+      //app.readSource();
       app.readPersonForCurrentUser();
+      //app.readSourceReferences();
+      //app.readPersonaReferences();
+      //app.readDiscussionReferences();
+      //app.readNotes();
       app.readParents();
+      app.readChildren();
+      app.readSpouses();
+      //app.readAncestry();
+      //app.readDescendency();
+      app.readPersonMatches();
+      //app.declareNotAMatch();
+      //app.addName();
+      app.addFact();
+      app.updateName();
+      app.updateGender();
+      app.updateFact();
+      //app.createDiscussion();
+      //app.attachDiscussion();
+      //app.attachPhotoToPerson();
+      app.readMemories();
+      //app.uploadArtifact();
+      //app.createMemoryPersona();
+      //app.createPersonaReference();
+      //app.attachPhotoToMultiplePersons();
     } catch (Exception e) {
           e.printStackTrace();
     }
