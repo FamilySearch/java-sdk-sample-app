@@ -24,10 +24,12 @@ import org.gedcomx.types.NameType;
 
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
 import static org.familysearch.api.client.util.FamilySearchOptions.reason;
+import static org.gedcomx.rs.client.options.QueryParameter.generations;
 
 /**
  * Created by tyganshelton on 7/16/2015.
@@ -43,6 +45,8 @@ public class App2 {
   private PersonState person;
   private PersonState papa;
   private PersonState mama;
+  private DiscussionState discussion;
+  private MemoriesUtil imageCreator;
   private SourceDescriptionState source;
   private FamilySearchMemories fsMemories;
   private PersonState persona;
@@ -297,23 +301,23 @@ public class App2 {
   //Runs successfully
 
   //Read Ancestry or Descendancy
-  //TODO: fix-generations(8) not recognized
   public void readAncestry () {
-  //the person for which to read the ancestry or descendancy
-//    PersonState person = this.person;
-//
-//    person.readAncestry(); //read the ancestry
-//    person.readAncestry(generations(8)); //read 8 generations of the ancestry
-  }
+    //the person for which to read the ancestry or descendancy
+    PersonState person = this.person;
 
-  //TODO: fix-generations(8) not recognized
-  public void readDescendency () {
-////the person for which to read the ancestry or descendancy
-//      PersonState person = this.papa;
-//
-//      person.readDescendancy(); //read the descendancy
-//      person.readDescendancy(generations(3)); //read 3 generations of the descendancy
+    AncestryResultsState state1 = person.readAncestry(); //read the ancestry
+    AncestryResultsState state2 = person.readAncestry(generations(8)); //read 8 generations of the ancestry
   }
+  //Runs successfully
+
+  public void readDescendency () {
+    //the person for which to read the ancestry or descendancy
+    PersonState person = this.papa;
+
+    DescendancyResultsState state1 = person.readDescendancy(); //read the descendancy
+    DescendancyResultsState state2 = person.readDescendancy(generations(2)); //read 2 generations of the descendancy
+  }
+  //Runs successfully
 
   //Read Person Matches (i.e., Possible Duplicates)
   public void readPersonMatches () {
@@ -328,7 +332,7 @@ public class App2 {
   //Runs successfully
 
   //Declare Not a Match
-  //TODO: fix-Does not affect possible duplicate and returns null
+  //Note: May not work successfully in sandbox
   public void declareNotAMatch () {
     //the match results
     PersonState person = this.person.get();
@@ -337,18 +341,19 @@ public class App2 {
     //iterate through the matches.
     List<Entry> entries = matches.getResults().getEntries();
 
-    PersonNonMatchesState state = matches.addNonMatch(entries.get(2), reason("Because I said so.")).ifSuccessful();
+    PersonNonMatchesState state = matches.addNonMatch(entries.get(2), reason("Because I said so."));
   }
+  //Runs successfully, just not on sandbox
 
   //Add a Name or Fact
-  //TODO: Fix-"Requested feature 'birth-date-not-considered-death-declaration' is not defined."
   public void addName () {
     //the person to which to add the name
       PersonState person = this.person.get();
 
-      Name name = new Name("Billy Goat");
-      person.addName(name.type(NameType.AlsoKnownAs), reason("Because I said so.")); //add name
+      Name name = new Name("Jake Smith", new NamePart(NamePartType.Given, "Jake"), new NamePart(NamePartType.Surname, "Smith"));
+      person.addName(name.type(NameType.AlsoKnownAs), reason("Because I said so.")).ifSuccessful(); //add name
   }
+  //Runs successfully
 
   public void addFact () {
       //the person to which to add the fact.
@@ -357,8 +362,6 @@ public class App2 {
       PersonState j = person.addFact(new Fact(FactType.Death, "1955", "Sweden"), reason("Because I said so.")).ifSuccessful(); //add death fact
   }
   //Runs successfully
-
- //Add gender? Maybe not necessary
 
   //Update a Name, Gender, or Fact
   public void updateName () {
@@ -392,36 +395,43 @@ public class App2 {
   //Runs successfully
 
   //Create a Discussion
-  //TODO: Fix-Returns 400 "Requested feature 'birth-date-not-considered-death-declaration' is not defined."
   public void createDiscussion () {
     FamilySearchFamilyTree ft = this.ft;
 
     //add a discussion description
     DiscussionState discussion = ft.addDiscussion(new Discussion()
       //with a title.
-      .title("What about this"),
+      .title("What about this").details("Deets"),
       //with a change message.
       reason("Because I said so.")
     );
+    this.discussion = discussion;
   }
+  //Runs successfully
 
   //Attach a Discussion
   //TODO: after createDiscussion
   public void attachDiscussion () {
     //the person that will be referencing the discussion.
-//      PersonState person = ...;
-//
-//      DiscussionState discussion = ...;
-//
-//      ((FamilyTreePersonState) person).addDiscussionReference(discussion, reason("Because I said so.")); //reference the discussion.
+      PersonState person = this.person;
+
+      DiscussionState discussion = this.discussion;
+
+      ((FamilyTreePersonState) person).addDiscussionReference(discussion, reason("Because I said so.")); //reference the discussion.
   }
+  //Runs successfully
 
   //Attach a Photo to a Person
-  //TODO: fix-without .ifSuccessful, returns 409 Conflict. With, causes birth-date-not-considered-death-date error
   public void attachPhotoToPerson () {
     //the person to which the photo will be attached.
     PersonState person = this.person.get();
-    DataSource digitalImage = new FileDataSource("TweedleDum.jpg");
+
+    DataSource digitalImage = null;
+    try {
+      digitalImage = imageCreator.createUniqueImage("TweedleDum.jpg");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
     //add an artifact
     SourceDescriptionState artifact = person.addArtifact(new SourceDescription()
@@ -430,7 +440,7 @@ public class App2 {
         digitalImage
     );
   }
-  //WAS running successfully
+  //Runs successfully
 
   //Read FamilySearch Memories
   //More complete sample: Find a specific memory
@@ -449,20 +459,26 @@ public class App2 {
   //Runs successfully
 
   //Upload Photo or Story or Document
-  //TODO: fix-returned 409: "Requested feature 'birth-date-not-considered-death-declaration' is not defined."
   public void uploadArtifact () {
-      FamilySearchMemories fsMemories = this.fsMemories;
-      DataSource digitalImage = new FileDataSource("Obituary.jpg");
+    FamilySearchMemories fsMemories = this.fsMemories;
 
-      //add an artifact
-      SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
-        //with a title
-        .title("Obituary for Tweedle Dum")
-        //and a citation
-        .citation("Generic Newspaper, 7 Aug 1955, page 1"),
-        digitalImage
-      );
+    DataSource digitalImage = null;
+    try {
+      digitalImage = imageCreator.createUniqueImage("Obituary.jpg");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    //add an artifact
+    SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
+      //with a title
+      .title("Obituary for Tweedle Dum")
+      //and a citation
+      .citation("Generic Newspaper, 7 Aug 1955, page 1"),
+      digitalImage
+    );
   }
+  //Runs successfully
 
   //Create a Memory Persona
   //TODO: Does sandbox not support adding artifacts?
@@ -499,24 +515,30 @@ public class App2 {
   //TODO: after attachPhoto
   public void attachPhotoToMultiplePersons () {
     //the collection to which the artifact is to be added
-//      CollectionState fsMemories = ...;
-//
-//      //the persons to which the photo will be attached.
-//      PersonState person1 = ...;
-//      PersonState person2 = ...;
-//      PersonState person3 = ...;
-//      DataSource digitalImage = new FileDataSource("/path/to/img.jpg");
-//
-//      //add an artifact
-//      SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
-//        //with a title
-//        .title("Family of John Smith"),
-//        digitalImage
-//      );
-//
-//      person1.addMediaReference(artifact); //attach to person1
-//      person2.addMediaReference(artifact); //attach to person2
-//      person3.addMediaReference(artifact); //attach to person3
+    CollectionState fsMemories = this.fsMemories;
+
+    //the persons to which the photo will be attached.
+    PersonState person1 = this.person;
+    PersonState person2 = this.papa;
+    PersonState person3 = this.mama;
+
+    DataSource digitalImage = null;
+    try {
+      digitalImage = imageCreator.createUniqueImage("FamilyPortrait.jpg");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    //add an artifact
+    SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
+      //with a title
+      .title("Family of Tweedle Dum"),
+      digitalImage
+    );
+
+    person1.addMediaReference(artifact); //attach to person1
+    person2.addMediaReference(artifact); //attach to person2
+    person3.addMediaReference(artifact); //attach to person3
   }
 
   public static void main(String[] args){
@@ -541,23 +563,23 @@ public class App2 {
       app.readParents();
       app.readChildren();
       app.readSpouses();
-      //app.readAncestry();                   //fix-generations(8) not recognized
-      //app.readDescendency();                //fix-generations(8) not recognized
+      app.readAncestry();
+      app.readDescendency();
       app.readPersonMatches();
-      //app.declareNotAMatch();               //Does not affect possible duplicate and returns null
-      //app.addName();                        //returns "Requested feature 'birth-date-not-considered-death-declaration' is not defined."
+      app.declareNotAMatch();
+      app.addName();
       app.addFact();
       app.updateName();
       app.updateGender();
       app.updateFact();
-      //app.createDiscussion();               //returns 400 "Requested feature 'birth-date-not-considered-death-declaration' is not defined
-      //app.attachDiscussion();               //complete after createDiscussion() works
-      //app.attachPhotoToPerson();            //returns 409 Conflict: "Requested feateure 'birth-date-not-considered-death-date' is not defined."
+      app.createDiscussion();
+      app.attachDiscussion();
+      app.attachPhotoToPerson();
       app.readMemories();
-      //app.uploadArtifact();                 //returns 409: "Requested feature 'birth-date-not-considered-death-declaration' is not defined."
+      app.uploadArtifact();
       //app.createMemoryPersona();            //complete after createMemoryPersona() works
       //app.createPersonaReference();         //complete after createMemoryPersona() works
-      //app.attachPhotoToMultiplePersons();   //complete after attachPhoto() works
+      app.attachPhotoToMultiplePersons();   //complete after attachPhoto() works
     } catch (Exception e) {
           e.printStackTrace();
     }
@@ -592,6 +614,7 @@ public class App2 {
         reason("Because I said so.")
     ).ifSuccessful();
 
+    imageCreator = new MemoriesUtil();
 
   }
 
