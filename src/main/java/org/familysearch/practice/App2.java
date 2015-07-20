@@ -34,9 +34,9 @@ import static org.familysearch.api.client.util.FamilySearchOptions.reason;
  */
 public class App2 {
 
-  private String username = "lyonrw";       //Put username here
-  private String password = "1234pass";       //Put username here
-  private String developerKey = "PWRD-4Y6P-8DNG-LTV9-XDD2-JBVG-R9BD-NRRP";   //Put username here
+  private String username = "";       //Put username here
+  private String password = "";       //Put username here
+  private String developerKey = "";   //Put username here
 
   private FamilySearchFamilyTree ft = null;
 
