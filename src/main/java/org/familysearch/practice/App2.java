@@ -168,16 +168,16 @@ public class App2 {
 
     //add a source description
     SourceDescriptionState source = ft.addSourceDescription(new SourceDescription()
-      //about some resource.
-      .about(org.gedcomx.common.URI.create("https://sandbox.familysearch.org/ark:/61903/4:1:KWHL-3TP"))
-      //with a title.
-      .title("Birth Certificate for Jack Sprat")
-      //and a citation
-      .citation("Citation for the birth certificate")
-      //and a note
-      .note(new Note().text("Some note for the source.")),
-      //with a change message.
-      reason("Because I said so.")
+            //about some resource.
+            .about(org.gedcomx.common.URI.create("https://sandbox.familysearch.org/ark:/61903/4:1:KWHL-3TP"))
+                //with a title.
+            .title("Birth Certificate for Jack Sprat")
+                //and a citation
+            .citation("Citation for the birth certificate")
+                //and a note
+            .note(new Note().text("Some note for the source.")),
+        //with a change message.
+        reason("Because I said so.")
     );
     this.source = source;
   }
@@ -217,26 +217,32 @@ public class App2 {
   //Read Source References
   public void readSourceReferences () {
     //the person on which to read the source references.
-      PersonState person = this.person.get();
+    PersonState person = this.person.get();
 
-      //load the source references for the person.
-      person.loadSourceReferences();
+    //load the source references for the person.
+    person.loadSourceReferences();
 
-      //read the source references.
-      List<SourceReference> sourceRefs = person.getPerson().getSources();
+    //read the source references.
+    List<SourceReference> sourceRefs = person.getPerson().getSources();
+    if (null != sourceRefs) {
+      org.gedcomx.common.URI uri = sourceRefs.get(0).getDescriptionRef();
+    }
   }
   //Runs successfully
 
   //Read Persona References
   public void readPersonaReferences () {
     //the person on which to read the persona references.
-      PersonState person = this.person.get();
+    PersonState person = this.person.get();
 
-      //load the persona references for the person.
-      person.loadPersonaReferences();
+    //load the persona references for the person.
+    person.loadPersonaReferences();
 
-      //read the persona references.
-      List<EvidenceReference> personaRefs = person.getPerson().getEvidence();
+    //read the persona references.
+    List<EvidenceReference> personaRefs = person.getPerson().getEvidence();
+    if (null != personaRefs) {
+      org.gedcomx.common.URI uri = personaRefs.get(0).getResource();
+    }
   }
   //Runs successfully
 
@@ -255,6 +261,9 @@ public class App2 {
 
     //read the discussion references.
     List<DiscussionReference> discussionRefs = person.getPerson().findExtensionsOfType(DiscussionReference.class);
+    if (null != discussionRefs) {
+      org.gedcomx.common.URI uri = discussionRefs.get(0).getResource();
+    }
   }
   //Runs successfully
 
@@ -273,6 +282,10 @@ public class App2 {
 
     //read the discussion references.
     List<Note> notes = person.getPerson().getNotes();
+    if  (null != notes) {
+      String subject = notes.get(0).getSubject();
+      String text = notes.get(0).getText();
+    }
   }
   //Runs successfully
 
@@ -282,6 +295,9 @@ public class App2 {
     PersonState person = this.person.get();   //Call PersonState.get() to repull the person's info
 
     PersonParentsState parents = person.readParents().ifSuccessful(); //read the parents
+    if (null != parents) {
+      PersonState parent = parents.get().readPerson();
+    }
   }
   //Runs successfully
 
@@ -310,6 +326,8 @@ public class App2 {
 
     AncestryResultsState state1 = person.readAncestry(); //read the ancestry
     AncestryResultsState state2 = person.readAncestry(generations(8)); //read 8 generations of the ancestry
+
+    PersonState ancestor = state1.readPerson(2);
   }
   //Runs successfully
 
@@ -319,6 +337,8 @@ public class App2 {
 
     DescendancyResultsState state1 = person.readDescendancy(); //read the descendancy
     DescendancyResultsState state2 = person.readDescendancy(generations(2)); //read 2 generations of the descendancy
+
+
   }
   //Runs successfully
 
@@ -331,6 +351,9 @@ public class App2 {
 
     //iterate through the matches.
     List<Entry> entries = matches.getResults().getEntries();
+    if (null != entries) {
+      org.gedcomx.common.URI id = entries.get(0).getId();
+    }
   }
   //Runs successfully
 
@@ -428,6 +451,7 @@ public class App2 {
     //the person to which the photo will be attached.
     PersonState person = this.person.get();
 
+    //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage = null;
     try {
       digitalImage = imageCreator.createUniqueImage("TweedleDum.jpg");
@@ -464,6 +488,7 @@ public class App2 {
   public void uploadArtifact () {
     FamilySearchMemories fsMemories = this.fsMemories;
 
+    //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage = null;
     try {
       digitalImage = imageCreator.createUniqueImage("Obituary.jpg");
@@ -484,6 +509,7 @@ public class App2 {
 
   //Create a Memory Persona
   public void createMemoryPersona () {
+    //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage = null;
     try {
       digitalImage = imageCreator.createUniqueImage("TweedleDum.jpg");
@@ -530,6 +556,7 @@ public class App2 {
     PersonState person2 = this.papa;
     PersonState person3 = this.mama;
 
+    //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage = null;
     try {
       digitalImage = imageCreator.createUniqueImage("FamilyPortrait.jpg");
@@ -555,6 +582,7 @@ public class App2 {
     try {
       app.readFamilyTree();
       app.setUp();
+
       app.readPersonByFtId(true);
       app.searchForMatch();
       app.createPerson();
@@ -588,6 +616,8 @@ public class App2 {
       app.createPersonaReference();
       app.readPersonaReferences();
       app.attachPhotoToMultiplePersons();   //uploading but not attaching
+
+      app.tearDown();
     } catch (Exception e) {
           e.printStackTrace();
     }
@@ -623,10 +653,15 @@ public class App2 {
     ).ifSuccessful();
 
     imageCreator = new MemoriesUtil();
-
   }
 
   //Cleans up objects used by example methods
   private void tearDown () {
+    this.person.delete();
+    this.papa.delete();
+    this.mama.delete();
+    this.discussion.delete();
+    this.persona.delete();
+    this.source.delete();
   }
 }

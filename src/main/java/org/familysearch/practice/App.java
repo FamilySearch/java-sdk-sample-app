@@ -14,9 +14,9 @@ import java.util.Scanner;
  */
 public class App {
 
-  private String username = "lyonrw"; //Put username here
-  private String password = "1234pass"; //Put password here
-  private String developerKey = "WCQY-7J1Q-GKVV-7DNM-SQ5M-9Q5H-JX3H-CMJK"; //Put developerKey here
+  private String username = ""; //Put username here
+  private String password = ""; //Put password here
+  private String developerKey = ""; //Put developerKey here
   private String pid = null;
   private FamilySearchFamilyTree ft = null;
 
