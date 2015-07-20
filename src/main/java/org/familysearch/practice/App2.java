@@ -8,9 +8,10 @@ import org.familysearch.api.client.ft.ChildAndParentsRelationshipState;
 import org.familysearch.api.client.ft.FamilySearchFamilyTree;
 import org.familysearch.api.client.ft.FamilyTreePersonState;
 import org.familysearch.api.client.memories.FamilySearchMemories;
-import org.familysearch.platform.discussions.Comment;
+import org.familysearch.platform.ct.DiscussionReference;
 import org.familysearch.platform.discussions.Discussion;
 import org.gedcomx.atom.Entry;
+import org.gedcomx.common.EvidenceReference;
 import org.gedcomx.common.Note;
 import org.gedcomx.conclusion.*;
 import org.gedcomx.rs.client.*;
@@ -23,7 +24,6 @@ import org.gedcomx.types.NamePartType;
 import org.gedcomx.types.NameType;
 
 import javax.activation.DataSource;
-import javax.activation.FileDataSource;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -228,50 +228,53 @@ public class App2 {
   //Runs successfully
 
   //Read Persona References
-  //TODO: Create persona references to be read
   public void readPersonaReferences () {
     //the person on which to read the persona references.
-//      PersonState person = ...;
-//
-//      //load the persona references for the person.
-//      person.loadPersonaReferences();
-//
-//      //read the persona references.
-//      List<EvidenceReference> personaRefs = person.getPerson().getEvidence();
+      PersonState person = this.person.get();
+
+      //load the persona references for the person.
+      person.loadPersonaReferences();
+
+      //read the persona references.
+      List<EvidenceReference> personaRefs = person.getPerson().getEvidence();
   }
+  //Runs successfully
 
   //Read Discussion References
-  //TODO: Create Discussion to read-currently returning 400
   public void readDiscussionReferences () {
     //Create discussion to be read
-    DiscussionState d = ft.addDiscussion(new Discussion().title("Unsure of gender").comment(new Comment("I can't tell of this person is male or female")));
+    DiscussionState discussion = ft.addDiscussion(new Discussion().title("Unsure of gender").details("Deets"),reason("Because I said so."));
     //Attach discussion to person
-    PersonState person = this.person.get();
-
+    ((FamilyTreePersonState) this.person).addDiscussionReference(discussion, reason("Because I said so."));
 
     //the person on which to read the discussion references.
+    PersonState person = this.person.get();
 
-//      PersonState person = ...;
-//
-//      //load the discussion references for the person.
-//      ((FamilyTreePersonState) person).loadDiscussionReferences();
-//
-//      //read the discussion references.
-//      List<DiscussionReference> discussionRefs = person.getPerson().findExtensionsOfType(DiscussionReference.class);
+    //load the discussion references for the person.
+    ((FamilyTreePersonState) person).loadDiscussionReferences();
+
+    //read the discussion references.
+    List<DiscussionReference> discussionRefs = person.getPerson().findExtensionsOfType(DiscussionReference.class);
   }
+  //Runs successfully
 
   //Read Notes
-  //TODO: Create notes to read
   public void readNotes () {
-//      //the person on which to read the notes.
-//      PersonState person = ...;
-//
-//      //load the notes for the person.
-//      person.loadNotes();
-//
-//      //read the discussion references.
-//      List<Note> notes = person.getPerson().getNotes();
+    //the person on which to read the notes.
+    PersonState person = this.person.get();
+
+    //create note to read
+    Note note = new Note().subject("Hair color").text("Hair color is presumed peus");
+    //attach note to person
+    ((FamilyTreePersonState) this.person).addNote(note);
+
+    //load the notes for the person.
+    person.loadNotes();
+
+    //read the discussion references.
+    List<Note> notes = person.getPerson().getNotes();
   }
+  //Runs successfully
 
   //Read Parents, Children, or Spouses
   public void readParents () {
@@ -410,7 +413,6 @@ public class App2 {
   //Runs successfully
 
   //Attach a Discussion
-  //TODO: after createDiscussion
   public void attachDiscussion () {
     //the person that will be referencing the discussion.
       PersonState person = this.person;
@@ -471,19 +473,24 @@ public class App2 {
 
     //add an artifact
     SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
-      //with a title
-      .title("Obituary for Tweedle Dum")
-      //and a citation
-      .citation("Generic Newspaper, 7 Aug 1955, page 1"),
-      digitalImage
+            //with a title
+            .title("Obituary for Tweedle Dum")
+                //and a citation
+            .citation("Generic Newspaper, 7 Aug 1955, page 1"),
+        digitalImage
     );
   }
   //Runs successfully
 
   //Create a Memory Persona
-  //TODO: Does sandbox not support adding artifacts?
   public void createMemoryPersona () {
-    DataSource digitalImage = new FileDataSource("TweedleDum.jpg");
+    DataSource digitalImage = null;
+    try {
+      digitalImage = imageCreator.createUniqueImage("TweedleDum.jpg");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
     PersonState person = this.person.get();
     //the artifact from which a persona will be extracted.
     SourceDescriptionState artifact = person.addArtifact(new SourceDescription()
@@ -495,24 +502,25 @@ public class App2 {
     PersonState persona = artifact.addPersona(new Person()
         //named Tweedle Dee Dum
         .name("Tweedle Dee Dum"));
-    this.persona = persona;
+    this.persona = persona.get();
   }
+  //Runs successfully
 
   //Create a Persona Reference
-  //TODO: after createMemoryPersona
   public void createPersonaReference () {
     //the person that will be citing the record, source, or artifact.
-//      PersonState person = ...;
-//
-//      //the persona that was extracted from a record or artifact.
-//      PersonState persona = ...;
-//
-//      //add the persona reference.
-//      person.addPersonaReference(persona);
+      PersonState person = this.person;
+
+      //the persona that was extracted from a record or artifact.
+      PersonState persona = this.persona;
+
+      //add the persona reference.
+      person.addPersonaReference(persona);
   }
+  //Runs successfully
 
   //Attach a Photo to Multiple Persons
-  //TODO: after attachPhoto
+  //TODO: uploading but not attaching
   public void attachPhotoToMultiplePersons () {
     //the collection to which the artifact is to be added
     CollectionState fsMemories = this.fsMemories;
@@ -557,9 +565,8 @@ public class App2 {
       app.readSource();
       app.readPersonForCurrentUser();
       app.readSourceReferences();
-      //app.readPersonaReferences();          //Create persona references to be read
-      //app.readDiscussionReferences();       //Create discussions to read
-      //app.readNotes();                      //Create notes to read
+      app.readDiscussionReferences();
+      app.readNotes();
       app.readParents();
       app.readChildren();
       app.readSpouses();
@@ -577,9 +584,10 @@ public class App2 {
       app.attachPhotoToPerson();
       app.readMemories();
       app.uploadArtifact();
-      //app.createMemoryPersona();            //complete after createMemoryPersona() works
-      //app.createPersonaReference();         //complete after createMemoryPersona() works
-      app.attachPhotoToMultiplePersons();   //complete after attachPhoto() works
+      app.createMemoryPersona();
+      app.createPersonaReference();
+      app.readPersonaReferences();
+      app.attachPhotoToMultiplePersons();   //uploading but not attaching
     } catch (Exception e) {
           e.printStackTrace();
     }
