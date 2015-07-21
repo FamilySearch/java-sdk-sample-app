@@ -15,7 +15,6 @@ import org.gedcomx.common.EvidenceReference;
 import org.gedcomx.common.Note;
 import org.gedcomx.conclusion.*;
 import org.gedcomx.rs.client.*;
-import org.gedcomx.rs.client.util.AncestryTree;
 import org.gedcomx.rs.client.util.GedcomxPersonSearchQueryBuilder;
 import org.gedcomx.source.SourceDescription;
 import org.gedcomx.source.SourceReference;
@@ -46,6 +45,7 @@ public class App {
   private PersonState person;
   private PersonState papa;
   private PersonState mama;
+  private String pid;
   private DiscussionState discussion;
   private MemoriesUtil imageCreator;
   private SourceDescriptionState source;
@@ -54,6 +54,7 @@ public class App {
 
   //Read the FamilySearch Family Tree
   public void readFamilyTree () {
+    System.out.println("Reading FamilyTree using username, password, and developer key");
     boolean useSandbox = true; //whether to use the sandbox reference.
 
     //read the Family Tree
@@ -61,7 +62,6 @@ public class App {
         //and authenticate.
         .authenticateViaOAuth2Password(username, password, developerKey);
   }
-  ///Runs successfully
 
   //Read a Family Tree Person by Persistent ID
   //Note: Does not work on sandbox
@@ -73,23 +73,26 @@ public class App {
     String ark = "https://familysearch.org/ark:/61903/4:1:LCJ6-DVV";
     FamilyTreePersonState person = new FamilyTreePersonState(URI.create(ark))
         .authenticateViaOAuth2Password(username, password, developerKey);
+    System.out.println("Reading person by persistent ID: Person " + person.getSelfUri() + " is " + person.getName().getNameForm().getFullText());
   }
 
   //Read a Family Person by Family Tree ID, with or without relationships
   public void readPersonByFtId (boolean withRelationships) {
-    String pid = "KW41-FDB";
+    String pid = this.pid;
 
     FamilySearchFamilyTree ft = this.ft;
 
     FamilyTreePersonState person = null;
     if(withRelationships){
       person = ft.readPersonWithRelationshipsById(pid);
+      System.out.println("Reading person by FamilyTreeId with relationships: Person " + pid + " is " + person.getName().getNameForm().getFullText() +
+          "; who has " + person.getRelationships().size() + " relationships");
     }
     else {
       person = ft.readPersonById(pid);
+      System.out.println("Reading person by FamilyTreeId without relationships: Person " + pid + " is " + person.getName().getNameForm().getFullText());
     }
   }
-  ///Runs successfully
 
   //Search for Persons or Person Matches in the Family Tree
   public void searchForMatch () {
@@ -104,6 +107,8 @@ public class App {
             //son of Peter.
         .fatherName("Peter Smith");
 
+    System.out.println("Searching for persons with name = John Smith, birthdate = 1 January 1900, and father's name = Peter Smith");
+
     //search the collection
     PersonSearchResultsState results = ft.searchForPersons(query);
     //iterate through the results...
@@ -115,14 +120,17 @@ public class App {
     PersonMatchResultsState matches = ft.searchForPersonMatches(query);
     //iterate through the results...
     entries = results.getResults().getEntries();
+    System.out.println("\tThere are " + entries.size() + " matching results");
     //read the person that was matched
     person = results.readPerson(entries.get(0));
+    System.out.println("\tThe first matching result is " + person.getName().getNameForm().getFullText());
   }
-  ///Runs successfully
 
   //Create Person in the Family Tree
   public void createPerson () {
     FamilySearchFamilyTree ft = this.ft;
+
+    System.out.println("Creating person John Smith");
 
     //add a person
     PersonState person = ft.addPerson(new Person()
@@ -137,35 +145,57 @@ public class App {
         //with a change message.
         reason("Because I said so.")
     ).ifSuccessful();
+
+    if (person.getResponse().getClientResponseStatus().getStatusCode() == 201) {
+      System.out.println("\tCreation succeeded. Person can be found at " + person.getSelfUri().toString());
+    }
+    else {
+      System.out.println("Creation failed. Response code " + person.getResponse().getClientResponseStatus().toString());
+    }
   }
-  ///Runs successfully
 
   //Create a Couple Relationship in the Family Tree
   public void createCouple () {
     FamilySearchFamilyTree ft = this.ft;
 
+    System.out.println("Creating couple relationship");
+
     PersonState husband = this.papa;
     PersonState wife = this.mama;
 
     RelationshipState coupleRelationship = ft.addSpouseRelationship(husband, wife, reason("Because I said so.")).ifSuccessful();
+    if (coupleRelationship.getResponse().getClientResponseStatus().getStatusCode() == 201) {
+      System.out.println("\tCreation succeeded. Couple relationship can be found at " + coupleRelationship.getSelfUri().toString());
+    }
+    else {
+      System.out.println("Creation failed. Response code " + coupleRelationship.getResponse().getClientResponseStatus().toString());
+    }
   }
-  ///Runs successfully
 
   //Create a Child-and-Parents Relationship in the Family Tree
   public void createChildParent () {
     FamilySearchFamilyTree ft = this.ft;
 
+    System.out.println("Creating Child-Parent relationship");
+
     PersonState father = this.papa;
     PersonState mother = this.mama;
     PersonState child = this.person;
 
-    ChildAndParentsRelationshipState chap = ft.addChildAndParentsRelationship(child, father, mother, reason("Because I said so."));
+    ChildAndParentsRelationshipState childParentRelationship = ft.addChildAndParentsRelationship(child, father, mother, reason("Because I said so."));
+    if (childParentRelationship.getResponse().getClientResponseStatus().getStatusCode() == 201) {
+      System.out.println("\tCreation succeeded. Child-Parent relationship can be found at " + childParentRelationship.getSelfUri().toString());
+    }
+    else {
+      System.out.println("Creation failed. Response code " + childParentRelationship.getResponse().getClientResponseStatus().toString());
+    }
   }
-  ///Runs successfully
 
   //Create a Source
   public void createSource () {
     FamilySearchFamilyTree ft = this.ft;
+
+    System.out.println("Creating source");
 
     //add a source description
     SourceDescriptionState source = ft.addSourceDescription(new SourceDescription()
@@ -181,19 +211,27 @@ public class App {
         reason("Because I said so.")
     );
     this.source = source;
+    if (source.getResponse().getClientResponseStatus().getStatusCode() == 201) {
+      System.out.println("\tCreation succeeded. Source can be found at " + source.getSelfUri().toString());
+    }
+    else {
+      System.out.println("Creation failed. Response code " + source.getResponse().getClientResponseStatus().toString());
+    }
   }
-  //Runs successfully
 
   //Create a Source Reference
   public void createSourceReference () {
+    System.out.println("Creating source reference");
+
     //the person that will be citing the record, source, or artifact.
     PersonState person = this.person.get();
 
     SourceDescriptionState source = this.source;
 
     person.addSourceReference(source, reason("Because I said so.")).ifSuccessful(); //cite the source.
+
+    System.out.println("\tSource reference should have been created. See reference at https://sandbox.familysearch.org/tree/#view=ancestor&person=" + person.getPerson().getId());
   }
-  //Runs successfully
 
   //Read Everything Attached to a Source
   public void readSource () {
@@ -204,16 +242,20 @@ public class App {
 
     //iterate through the persons attached to the source
     List<Person> persons = attachedReferences.getEntity().getPersons();
+    System.out.println("Reading source at " + source.getSelfRel() + "\n\t" + persons.size() + " person(s) attached to this source:");
+    for(Person person: persons){
+      System.out.println("\t" + person.getId());
+    }
   }
-  //Runs successfully
 
   //Read Person for the Current User
   public void readPersonForCurrentUser () {
     FamilySearchFamilyTree ft = this.ft;
 
     PersonState person = ft.readPersonForCurrentUser();
+
+    System.out.println("Reading Person for current user: Current user is " + person.getName().getNameForm().getFullText());
   }
-  //Runs successfully
 
   //Read Source References
   public void readSourceReferences () {
@@ -227,9 +269,9 @@ public class App {
     List<SourceReference> sourceRefs = person.getPerson().getSources();
     if (null != sourceRefs) {
       org.gedcomx.common.URI uri = sourceRefs.get(0).getDescriptionRef();
+      System.out.println("Reading source references: First one found at " + uri.toString());
     }
   }
-  //Runs successfully
 
   //Read Persona References
   public void readPersonaReferences () {
@@ -243,14 +285,14 @@ public class App {
     List<EvidenceReference> personaRefs = person.getPerson().getEvidence();
     if (null != personaRefs) {
       org.gedcomx.common.URI uri = personaRefs.get(0).getResource();
+      System.out.println("Reading persona references: First one found at " + uri.toString());
     }
   }
-  //Runs successfully
 
   //Read Discussion References
   public void readDiscussionReferences () {
     //Create discussion to be read
-    DiscussionState discussion = ft.addDiscussion(new Discussion().title("Unsure of gender").details("Deets"),reason("Because I said so."));
+    DiscussionState discussion = ft.addDiscussion(new Discussion().title("Unsure of gender").details("Deets"), reason("Because I said so."));
     //Attach discussion to person
     ((FamilyTreePersonState) this.person).addDiscussionReference(discussion, reason("Because I said so."));
 
@@ -264,9 +306,9 @@ public class App {
     List<DiscussionReference> discussionRefs = person.getPerson().findExtensionsOfType(DiscussionReference.class);
     if (null != discussionRefs) {
       org.gedcomx.common.URI uri = discussionRefs.get(0).getResource();
+      System.out.println("Reading discussion references: First one found at " + uri.toString());
     }
   }
-  //Runs successfully
 
   //Read Notes
   public void readNotes () {
@@ -274,7 +316,7 @@ public class App {
     PersonState person = this.person.get();
 
     //create note to read
-    Note note = new Note().subject("Hair color").text("Hair color is presumed peus");
+    Note note = new Note().subject("Hair color").text("Jack's hair color was puce.");
     //attach note to person
     ((FamilyTreePersonState) this.person).addNote(note);
 
@@ -284,82 +326,116 @@ public class App {
     //read the discussion references.
     List<Note> notes = person.getPerson().getNotes();
     if  (null != notes) {
-      String subject = notes.get(0).getSubject();
-      String text = notes.get(0).getText();
+
+      System.out.println("Reading notes of " + person.getName().getNameForm().getFullText() + ":");
+      for(Note n: notes){
+        String subject = notes.get(0).getSubject();
+        String text = notes.get(0).getText();
+        System.out.println("\t" + subject + ": " + text);
+      }
     }
   }
-  //Runs successfully
 
   //Read Parents, Children, or Spouses
   public void readParents () {
     //the person for which to read the parents
     PersonState person = this.person.get();   //Call PersonState.get() to repull the person's info
 
+    System.out.println("Reading parents of " + person.getName().getNameForm().getFullText() + ":");
+
     PersonParentsState parents = person.readParents().ifSuccessful(); //read the parents
     if (null != parents) {
       List<Person> listOfParents = parents.getPersons();
-      PersonState parentState = parents.readParent(listOfParents.get(0));
+      for(Person parent: listOfParents){
+        PersonState parentState = parents.readParent(parent);
+        System.out.println("\t" + parentState.getName().getNameForm().getFullText());
+      }
+      //PersonState parentState = parents.readParent(listOfParents.get(0));
     }
   }
-  //Runs successfully
 
   public void readChildren () {
     //the person for which to read the children
     PersonState person = this.papa.get();
 
-    PersonChildrenState children = person.readChildren(); //read the children
-    List<Person> persons = children.getPersons();
+    System.out.println("Reading children of " + person.getName().getNameForm().getFullText());
+
+    PersonChildrenState children = person.readChildren().ifSuccessful(); //read the children
+    if (null != children) {
+      List<Person> listOfChildren = children.getPersons();
+      for(Person child: listOfChildren){
+        PersonState childState = children.readChild(child);
+        System.out.println("\t" + childState.getName().getNameForm().getFullText());
+      }
+    }
   }
-  //Runs successfully
 
   public void readSpouses () {
     //the person for which to read the spouses
     PersonState person = this.mama.get();
 
-    PersonSpousesState spouses = person.readSpouses(); //read the spouses
-    List<Person> persons = spouses.getPersons();
+    System.out.println("Reading spouses of " + person.getName().getNameForm().getFullText());
+
+    PersonSpousesState spouses = person.readSpouses().ifSuccessful(); //read the spouses
+     if (null != spouses) {
+       List<Person> listOfSpouses = spouses.getPersons();
+       for(Person spouse: listOfSpouses){
+         PersonState spouseState = spouses.readSpouse(spouse);
+         System.out.println("\t" + spouseState.getName().getNameForm().getFullText());
+       }
+     }
+
   }
-  //Runs successfully
 
   //Read Ancestry or Descendancy
   public void readAncestry () {
     //the person for which to read the ancestry or descendancy
-    PersonState person = this.person;
+    PersonState person = this.person.get();
+
+    System.out.println("Reading ancestry of " + person.getName().getNameForm().getFullText());
 
     AncestryResultsState state1 = person.readAncestry(); //read the ancestry
     AncestryResultsState state2 = person.readAncestry(generations(8)); //read 8 generations of the ancestry
 
-    PersonState ancestor = state1.readPerson(2);
-    AncestryTree.AncestryNode node = state1.getTree().getAncestor(5);
+    String ancestor1 = state1.readPerson(2).getName().getNameForm().getFullText();
+    System.out.println("\tFirst ancestor to read: " + ancestor1);
 
-    //String mothersFathersMothersName = state1.getTree().getAncestor(10).getPerson().getName().getNameForm().getFullText();
+    String ancestor2 = state1.getTree().getAncestor(3).getPerson().getName().getNameForm().getFullText();
+    System.out.println("\tSecond ancestor to read: " + ancestor2);
   }
-  //Runs successfully
 
   public void readDescendency () {
     //the person for which to read the ancestry or descendancy
-    PersonState person = this.papa;
+    PersonState person = this.papa.get();
+
+    System.out.println("Reading descendency of " + person.getName().getNameForm().getFullText());
 
     DescendancyResultsState state1 = person.readDescendancy(); //read the descendancy
     DescendancyResultsState state2 = person.readDescendancy(generations(2)); //read 2 generations of the descendancy
-    //PersonState descendant = state1.readPerson("1.1.1"); ///feature request
+
+    //Read a descendent's details
+    String childName = state1.getTree().getRoot().getChildren().get(0).getPerson().getName().getNameForm().getFullText();
+    System.out.println("\tDescendent to read: " + childName);
   }
-  //Runs successfully
 
   //Read Person Matches (i.e., Possible Duplicates)
   public void readPersonMatches () {
     //the person for which to read the matches
     PersonState person = this.person.get();
 
+    System.out.println("Reading person matches for " + person.getName().getNameForm().getFullText() + " (" + person.getPerson().getId() + "):");
+
     PersonMatchResultsState matches = ((FamilyTreePersonState) person).readMatches();
 
     //iterate through the matches.
     List<Entry> entries = matches.getResults().getEntries();
     if (null != entries) {
-      org.gedcomx.common.URI id = entries.get(0).getId();
+      for(Entry entry: entries){
+        org.gedcomx.common.URI id = entry.getId();
+        System.out.println("\t" + id);
+      }
     }
   }
-  //Runs successfully
 
   //Declare Not a Match
   //Note: May not work successfully in sandbox
@@ -372,8 +448,8 @@ public class App {
     List<Entry> entries = matches.getResults().getEntries();
 
     PersonNonMatchesState state = matches.addNonMatch(entries.get(2), reason("Because I said so."));
+    System.out.println("Declaring " + entries.get(2).getId() + " not a match");
   }
-  //Runs successfully, just not on sandbox
 
   //Add a Name or Fact
   public void addName () {
@@ -382,16 +458,18 @@ public class App {
 
     Name name = new Name("Jake Smith", new NamePart(NamePartType.Given, "Jake"), new NamePart(NamePartType.Surname, "Smith"));
     person.addName(name.type(NameType.AlsoKnownAs), reason("Because I said so.")).ifSuccessful(); //add name
+
+    System.out.println("Adding the name \"Jake Smith\" to " + person.getName().getNameForm().getFullText());
   }
-  //Runs successfully
 
   public void addFact () {
     //the person to which to add the fact.
-    PersonState person = this.person;
+    PersonState person = this.person.get();
 
-    PersonState j = person.addFact(new Fact(FactType.Death, "1955", "Sweden"), reason("Because I said so.")).ifSuccessful(); //add death fact
+    person.addFact(new Fact(FactType.Death, "1955", "Sweden"), reason("Because I said so.")).ifSuccessful(); //add death fact
+
+    System.out.println("Adding a fact to " + person.getName().getNameForm().getFullText() + "\n\tView here: " + person.getUri());
   }
-  //Runs successfully
 
   //Update a Name, Gender, or Fact
   public void updateName () {
@@ -399,10 +477,12 @@ public class App {
     PersonState person = this.person.get();
 
     Name name = person.getName();
+    String originalName = name.getNameForm().getFullText();
     name.getNameForm().setFullText("Tweedle Dum");
     person.updateName(name, reason("Because I said so.")); //update name
+
+    System.out.println("Name of " + originalName + " changed to " + person.get().getName().getNameForm().getFullText());
   }
-  //Runs successfully
 
   public void updateGender () {
     //the person to which to update the gender.
@@ -411,8 +491,9 @@ public class App {
     Gender gender = person.getGender();
     gender.setKnownType(GenderType.Female);
     person.updateGender(gender, reason("Because I said so.")); //update gender
+
+    System.out.println("Gender of " + person.getName().getNameForm().getFullText() + " changed from " + "to " + person.get().getName().getNameForm().getFullText());
   }
-  //Runs successfully
 
   public void updateFact () {
     //the person to which to update the fact.
@@ -422,7 +503,6 @@ public class App {
     death.setDate(new Date().original("1985"));
     person.updateFact(death, reason("Because I said so."));
   }
-  //Runs successfully
 
   //Create a Discussion
   public void createDiscussion () {
@@ -437,7 +517,6 @@ public class App {
     );
     this.discussion = discussion;
   }
-  //Runs successfully
 
   //Attach a Discussion
   public void attachDiscussion () {
@@ -448,7 +527,6 @@ public class App {
 
     ((FamilyTreePersonState) person).addDiscussionReference(discussion, reason("Because I said so.")); //reference the discussion.
   }
-  //Runs successfully
 
   //Attach a Photo to a Person
   public void attachPhotoToPerson () {
@@ -470,10 +548,9 @@ public class App {
         digitalImage
     );
   }
-  //Runs successfully
 
   //Read FamilySearch Memories
-  //More complete sample: Find a specific memory
+  ///More complete sample: Find a specific memory
   public void readMemories () {
     boolean useSandbox = true; //whether to use the sandbox reference.
     String username = this.username;
@@ -486,7 +563,6 @@ public class App {
         .authenticateViaOAuth2Password(username, password, developerKey);
     this.fsMemories = fsMemories;
   }
-  //Runs successfully
 
   //Upload Photo or Story or Document
   public void uploadArtifact () {
@@ -509,7 +585,6 @@ public class App {
         digitalImage
     );
   }
-  //Runs successfully
 
   //Create a Memory Persona
   public void createMemoryPersona () {
@@ -534,7 +609,6 @@ public class App {
         .name("Tweedle Dee Dum"));
     this.persona = persona.get();
   }
-  //Runs successfully
 
   //Create a Persona Reference
   public void createPersonaReference () {
@@ -547,7 +621,6 @@ public class App {
     //add the persona reference.
     person.addPersonaReference(persona);
   }
-  //Runs successfully
 
   //Attach a Photo to Multiple Persons
   public void attachPhotoToMultiplePersons () {
@@ -586,6 +659,7 @@ public class App {
       app.readFamilyTree();
       app.setUp();
 
+      app.readPersonByFtId(false);
       app.readPersonByFtId(true);
       app.searchForMatch();
       app.createPerson();
@@ -628,6 +702,8 @@ public class App {
 
   //Sets up objects to be used by example methods
   private void setUp () {
+    System.out.println("Setting up objects for example use.");
+
     //Used as person and child
     this.person = ft.addPerson(new Person()
             .name(new Name("Jack Sprat", new NamePart(NamePartType.Given, "Jack"), new NamePart(NamePartType.Surname, "Sprat")).preferred(true))
@@ -636,6 +712,8 @@ public class App {
             .fact(new Fact(FactType.Death, "1 January 1970", "New York, New York")),
         reason("Because I said so.")
     ).ifSuccessful();
+
+    this.pid = person.get().getPerson().getId();
 
     //Used as husband and father
     this.papa = ft.addPerson(new Person()
