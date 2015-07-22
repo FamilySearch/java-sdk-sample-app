@@ -1,13 +1,20 @@
 package org.familysearch.practice;
 
 import org.familysearch.api.client.ft.FamilySearchFamilyTree;
+import org.gedcomx.conclusion.Fact;
+import org.gedcomx.conclusion.Name;
+import org.gedcomx.conclusion.NamePart;
 import org.gedcomx.conclusion.Person;
 import org.gedcomx.rs.client.PersonState;
+import org.gedcomx.types.FactType;
+import org.gedcomx.types.GenderType;
+import org.gedcomx.types.NamePartType;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import java.util.List;
-import java.util.Scanner;
+
+import static org.familysearch.api.client.util.FamilySearchOptions.reason;
 
 /**
  * Created by tyganshelton on 6/22/2015.
@@ -30,10 +37,25 @@ public class PersonStateExample {
 
   public void doMain() {
 
-    System.out.println("Enter PID to look up:");
-    Scanner scanner = new Scanner(System.in);
-    pid = scanner.next();
+    System.out.println("Creating person...");
 
+    //Create person to use for examples
+    PersonState person1 = ft.addPerson(new Person()
+            //named Johnny Lingo
+            .name(new Name("Johnny Lingo", new NamePart(NamePartType.Given, "Johnny"), new NamePart(NamePartType.Surname, "Lingo")).preferred(true))
+                //male
+            .gender(GenderType.Male)
+                //born in chicago in 1920
+            .fact(new Fact(FactType.Birth, "1 January 1931", "Honolulu, Hawaii"))
+                //died in new york 1980
+            .fact(new Fact(FactType.Death, "1 January 1988", "Ventura, California")),
+        //with a change message.
+        reason("Because I said so.")
+    ).ifSuccessful();
+
+    System.out.println("Get person with pid");
+    //Get pid
+    String pid = person1.get().getPerson().getId();
     //Get person
     PersonState personState = familySearchFamilyTree.readPersonById(pid).ifSuccessful();
     Person person = personState.getPerson();///
@@ -145,28 +167,6 @@ public class PersonStateExample {
     //personState.readParents().readParent();
   }
 
-  public void try2(){
-    //add a person
-//    PersonState person2 = familySearchFamilyTree.addPerson(new Person()
-//                    //named John Smith
-//                    .name(new Name("Xohn Xmith", new NamePart(NamePartType.Given, "John"), new NamePart(NamePartType.Surname, "Smith")))
-//                            //male
-//                    .gender(GenderType.Male)
-//                            //born in chicago in 1920
-//                    .fact(new Fact(FactType.Birth, "1 January 1920", "Chicago, Illinois"))
-//                            //died in new york 1980
-//                    .fact(new Fact(FactType.Death, "1 January 1980", "New York, New York")),
-//            //with a change message.
-//            reason("Because I said so.")
-//
-//    );
-//    System.out.println(person2.getPerson().getId());
-    pid = "KWHK-FQR";
-    PersonState personState = familySearchFamilyTree.readPersonById(pid).ifSuccessful();
-    Person person = personState.getPerson();///
-
-  }
-
   //Read the FamilySearch Family Tree
   public void readFamilyTree (String username, String password, String developerKey) {
     boolean useSandbox = true; //whether to use the sandbox reference.
@@ -196,7 +196,7 @@ public class PersonStateExample {
     try {
       parser.parseArgument(args);
       app.setUp(parser);
-      app.try2();
+      app.doMain();
     }
     catch (CmdLineException e) {
       System.err.println(e.getMessage());

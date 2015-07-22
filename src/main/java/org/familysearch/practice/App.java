@@ -27,6 +27,7 @@ import javax.activation.DataSource;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Scanner;
 
 import static org.familysearch.api.client.util.FamilySearchOptions.reason;
 import static org.gedcomx.rs.client.options.QueryParameter.generations;
@@ -36,15 +37,16 @@ import static org.gedcomx.rs.client.options.QueryParameter.generations;
  */
 public class App {
 
-  private String username = "";       //Put username here
-  private String password = "";       //Put username here
-  private String developerKey = "";   //Put username here
+  private String username;
+  private String password;
+  private String developerKey;
 
   private FamilySearchFamilyTree ft = null;
 
   private PersonState person;
   private PersonState papa;
   private PersonState mama;
+  private PersonState person2;
   private String pid;
   private DiscussionState discussion;
   private MemoriesUtil imageCreator;
@@ -52,9 +54,15 @@ public class App {
   private FamilySearchMemories fsMemories;
   private PersonState persona;
 
+  public App (String username, String password, String developerkey) {
+    this.username = username;
+    this.password = password;
+    this.developerKey = developerkey;
+  }
+
   //Read the FamilySearch Family Tree
   public void readFamilyTree () {
-    System.out.println("Reading FamilyTree using username, password, and developer key");
+    System.out.println("Reading FamilyTree using username, password, and developer key...");
     boolean useSandbox = true; //whether to use the sandbox reference.
 
     //read the Family Tree
@@ -86,7 +94,7 @@ public class App {
     if(withRelationships){
       person = ft.readPersonWithRelationshipsById(pid);
       System.out.println("Reading person by FamilyTreeId with relationships: Person " + pid + " is " + person.getName().getNameForm().getFullText() +
-          "; who has " + person.getRelationships().size() + " relationships");
+          ", who has " + person.getRelationships().size() + " relationships");
     }
     else {
       person = ft.readPersonById(pid);
@@ -123,14 +131,14 @@ public class App {
     System.out.println("\tThere are " + entries.size() + " matching results");
     //read the person that was matched
     person = results.readPerson(entries.get(0));
-    System.out.println("\tThe first matching result is " + person.getName().getNameForm().getFullText());
+    System.out.println("\tThe first matching result is " + person.getPerson().getId());
   }
 
   //Create Person in the Family Tree
   public void createPerson () {
     FamilySearchFamilyTree ft = this.ft;
 
-    System.out.println("Creating person John Smith");
+    System.out.println("Creating person John Smith...");
 
     //add a person
     PersonState person = ft.addPerson(new Person()
@@ -152,13 +160,14 @@ public class App {
     else {
       System.out.println("Creation failed. Response code " + person.getResponse().getClientResponseStatus().toString());
     }
+    this.person2 = person;
   }
 
   //Create a Couple Relationship in the Family Tree
   public void createCouple () {
     FamilySearchFamilyTree ft = this.ft;
 
-    System.out.println("Creating couple relationship");
+    System.out.println("Creating couple relationship...");
 
     PersonState husband = this.papa;
     PersonState wife = this.mama;
@@ -176,7 +185,7 @@ public class App {
   public void createChildParent () {
     FamilySearchFamilyTree ft = this.ft;
 
-    System.out.println("Creating Child-Parent relationship");
+    System.out.println("Creating Child-Parent relationship...");
 
     PersonState father = this.papa;
     PersonState mother = this.mama;
@@ -195,7 +204,7 @@ public class App {
   public void createSource () {
     FamilySearchFamilyTree ft = this.ft;
 
-    System.out.println("Creating source");
+    System.out.println("Creating source...");
 
     //add a source description
     SourceDescriptionState source = ft.addSourceDescription(new SourceDescription()
@@ -221,7 +230,7 @@ public class App {
 
   //Create a Source Reference
   public void createSourceReference () {
-    System.out.println("Creating source reference");
+    System.out.println("Creating source reference...");
 
     //the person that will be citing the record, source, or artifact.
     PersonState person = this.person.get();
@@ -242,7 +251,7 @@ public class App {
 
     //iterate through the persons attached to the source
     List<Person> persons = attachedReferences.getEntity().getPersons();
-    System.out.println("Reading source at " + source.getSelfRel() + "\n\t" + persons.size() + " person(s) attached to this source:");
+    System.out.println("Reading source at " + source.getUri() + "\n\t" + persons.size() + " person(s) attached to this source:");
     for(Person person: persons){
       System.out.println("\t" + person.getId());
     }
@@ -358,7 +367,7 @@ public class App {
     //the person for which to read the children
     PersonState person = this.papa.get();
 
-    System.out.println("Reading children of " + person.getName().getNameForm().getFullText());
+    System.out.println("Reading children of " + person.getName().getNameForm().getFullText() + ":");
 
     PersonChildrenState children = person.readChildren().ifSuccessful(); //read the children
     if (null != children) {
@@ -374,7 +383,7 @@ public class App {
     //the person for which to read the spouses
     PersonState person = this.mama.get();
 
-    System.out.println("Reading spouses of " + person.getName().getNameForm().getFullText());
+    System.out.println("Reading spouses of " + person.getName().getNameForm().getFullText() + ":");
 
     PersonSpousesState spouses = person.readSpouses().ifSuccessful(); //read the spouses
      if (null != spouses) {
@@ -392,7 +401,7 @@ public class App {
     //the person for which to read the ancestry or descendancy
     PersonState person = this.person.get();
 
-    System.out.println("Reading ancestry of " + person.getName().getNameForm().getFullText());
+    System.out.println("Reading ancestry of " + person.getName().getNameForm().getFullText() + ":");
 
     AncestryResultsState state1 = person.readAncestry(); //read the ancestry
     AncestryResultsState state2 = person.readAncestry(generations(8)); //read 8 generations of the ancestry
@@ -408,7 +417,7 @@ public class App {
     //the person for which to read the ancestry or descendancy
     PersonState person = this.papa.get();
 
-    System.out.println("Reading descendency of " + person.getName().getNameForm().getFullText());
+    System.out.println("Reading descendency of " + person.getName().getNameForm().getFullText() + ":");
 
     DescendancyResultsState state1 = person.readDescendancy(); //read the descendancy
     DescendancyResultsState state2 = person.readDescendancy(generations(2)); //read 2 generations of the descendancy
@@ -448,7 +457,7 @@ public class App {
     List<Entry> entries = matches.getResults().getEntries();
 
     PersonNonMatchesState state = matches.addNonMatch(entries.get(2), reason("Because I said so."));
-    System.out.println("Declaring " + entries.get(2).getId() + " not a match");
+    System.out.println("Declaring " + entries.get(2).getId() + " not a match...");
   }
 
   //Add a Name or Fact
@@ -481,7 +490,7 @@ public class App {
     name.getNameForm().setFullText("Tweedle Dum");
     person.updateName(name, reason("Because I said so.")); //update name
 
-    System.out.println("Name of " + originalName + " changed to " + person.get().getName().getNameForm().getFullText());
+    System.out.println("Updating name of " + originalName + " changed to " + person.get().getName().getNameForm().getFullText());
   }
 
   public void updateGender () {
@@ -489,10 +498,12 @@ public class App {
     PersonState person = this.person.get();
 
     Gender gender = person.getGender();
+    String originalGender = gender.toString();
     gender.setKnownType(GenderType.Female);
     person.updateGender(gender, reason("Because I said so.")); //update gender
 
-    System.out.println("Gender of " + person.getName().getNameForm().getFullText() + " changed from " + "to " + person.get().getName().getNameForm().getFullText());
+    System.out.println("Updating gender of " + person.getName().getNameForm().getFullText() +
+        " changed from " + originalGender + " to " + person.getGender().toString());
   }
 
   public void updateFact () {
@@ -500,8 +511,12 @@ public class App {
     PersonState person = this.person.get();
 
     Fact death = person.getPerson().getFirstFactOfType(FactType.Death);
+    String originalDate = death.getDate().getOriginal();
     death.setDate(new Date().original("1985"));
     person.updateFact(death, reason("Because I said so."));
+
+    System.out.println("Updating fact of death date of " + person.getName().getNameForm().getFullText() +
+        " changed from " + originalDate + " to " + person.getPerson().getFirstFactOfType(FactType.Death).getDate().getOriginal());
   }
 
   //Create a Discussion
@@ -516,16 +531,18 @@ public class App {
         reason("Because I said so.")
     );
     this.discussion = discussion;
+    System.out.println("Creating discussion: Find at " + discussion.getResponse().getLocation());
   }
 
   //Attach a Discussion
   public void attachDiscussion () {
     //the person that will be referencing the discussion.
-    PersonState person = this.person;
+    PersonState person = this.person.get();
 
     DiscussionState discussion = this.discussion;
 
     ((FamilyTreePersonState) person).addDiscussionReference(discussion, reason("Because I said so.")); //reference the discussion.
+    System.out.println("Attaching discussion: Attached to person at https://sandbox.familysearch.org/tree/#view=ancestor&person=" + person.getPerson().getId());
   }
 
   //Attach a Photo to a Person
@@ -547,6 +564,7 @@ public class App {
             .title("Portrait of Tweedle Dum"),
         digitalImage
     );
+    System.out.println("Attaching photo to person: Find at " + artifact.getSelfUri());
   }
 
   //Read FamilySearch Memories
@@ -562,6 +580,7 @@ public class App {
         //and authenticate.
         .authenticateViaOAuth2Password(username, password, developerKey);
     this.fsMemories = fsMemories;
+    PersonState p = fsMemories.readPerson(this.person.getUri());
   }
 
   //Upload Photo or Story or Document
@@ -584,6 +603,7 @@ public class App {
             .citation("Generic Newspaper, 7 Aug 1955, page 1"),
         digitalImage
     );
+    System.out.println("Uploading artifact: find at " + artifact.getResponse().getLocation());
   }
 
   //Create a Memory Persona
@@ -597,17 +617,20 @@ public class App {
     }
 
     PersonState person = this.person.get();
+
     //the artifact from which a persona will be extracted.
-    SourceDescriptionState artifact = person.addArtifact(new SourceDescription()
-            .title("Portrait of Tweedle Dee Dum"),
+    SourceDescriptionState artifact = ft.addArtifact(new SourceDescription()
+            .title("Tweedle Dum Fishing"),
         digitalImage
     );
 
     //add the persona
     PersonState persona = artifact.addPersona(new Person()
-        //named Tweedle Dee Dum
-        .name("Tweedle Dee Dum"));
+      //named TweedleDum
+      .name(new Name("Personaxx Tweedle Dum", new NamePart(NamePartType.Given, "Personaxx Tweedle"), new NamePart(NamePartType.Surname, "Dum")).preferred(true)));
     this.persona = persona.get();
+
+    System.out.println("Creating memory person: find at " + persona.getResponse().getLocation());
   }
 
   //Create a Persona Reference
@@ -620,6 +643,8 @@ public class App {
 
     //add the persona reference.
     person.addPersonaReference(persona);
+
+    //System.out.println("Creating persona reference between " + person.getPerson().getId() + " and " + persona.getPerson().getId());
   }
 
   //Attach a Photo to Multiple Persons
@@ -650,10 +675,24 @@ public class App {
     person1.addMediaReference(artifact); //attach to person1
     person2.addMediaReference(artifact); //attach to person2
     person3.addMediaReference(artifact); //attach to person3
+
+//    System.out.println("Attaching photo to multiple persons: Attaching photo at " + artifact.getResponse().getLocation() + " with" +
+//        "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person1.getPerson().getId() +
+//        "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person2.getPerson().getId() +
+//        "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person3.getPerson().getId());
   }
 
   public static void main(String[] args){
-    App app = new App();
+    System.out.println("Running Sample App\n" +
+        "Enter username: ");
+    Scanner scan = new Scanner(System.in);
+    String username = scan.next();
+    System.out.println("Enter password: ");
+    String password = scan.next();
+    System.out.println("Enter developer key: ");
+    String developerKey = scan.next();
+
+    App app = new App(username, password, developerKey);
 
     try {
       app.readFamilyTree();
@@ -694,7 +733,11 @@ public class App {
       app.readPersonaReferences();
       app.attachPhotoToMultiplePersons();   //uploading but not attaching
 
-      app.tearDown();
+      System.out.println("SampleApp complete." +
+          "\nTear down test objects? (y/n)");
+      if(!scan.next().equals("n")){
+        app.tearDown();
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -702,7 +745,7 @@ public class App {
 
   //Sets up objects to be used by example methods
   private void setUp () {
-    System.out.println("Setting up objects for example use.");
+    System.out.println("Setting up objects for example use...");
 
     //Used as person and child
     this.person = ft.addPerson(new Person()
@@ -738,9 +781,11 @@ public class App {
 
   //Cleans up objects used by example methods
   private void tearDown () {
+    System.out.println("Deleting test objects...");
     this.person.delete();
     this.papa.delete();
     this.mama.delete();
+    this.person2.delete();
     this.discussion.delete();
     this.persona.delete();
     this.source.delete();
