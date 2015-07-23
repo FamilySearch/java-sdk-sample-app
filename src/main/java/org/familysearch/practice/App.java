@@ -40,9 +40,7 @@ public class App {
   private String username;
   private String password;
   private String developerKey;
-
   private FamilySearchFamilyTree ft = null;
-
   private PersonState person;
   private PersonState papa;
   private PersonState mama;
@@ -684,12 +682,12 @@ public class App {
 
   public static void main(String[] args){
     System.out.println("Running Sample App\n" +
-        "Enter username: ");
+        "Enter username:");
     Scanner scan = new Scanner(System.in);
     String username = scan.next();
-    System.out.println("Enter password: ");
+    System.out.println("Enter password:");
     String password = scan.next();
-    System.out.println("Enter developer key: ");
+    System.out.println("Enter developer key:");
     String developerKey = scan.next();
 
     App app = new App(username, password, developerKey);
@@ -734,13 +732,14 @@ public class App {
       app.attachPhotoToMultiplePersons();   //uploading but not attaching
 
       System.out.println("SampleApp complete." +
-          "\nTear down test objects? (y/n)");
+          "\nReady to delete example objects? (y/n)");
       if(!scan.next().equals("n")){
         app.tearDown();
       }
     } catch (Exception e) {
       e.printStackTrace();
     }
+    System.out.println("Terminated.");
   }
 
   //Sets up objects to be used by example methods
