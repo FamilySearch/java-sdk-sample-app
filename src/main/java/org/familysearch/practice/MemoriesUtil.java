@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.util.UUID;
 
 /**
@@ -18,10 +19,13 @@ public class MemoriesUtil {
     return createUniqueImage("TweedleDum.jpg");
   }
 
-  public static DataSource createUniqueImage(String file) throws IOException {
+  public static DataSource createUniqueImage(String urlString) throws IOException {
     //Lifted from http://www.codebeach.com/2008/02/watermarking-images-in-java-servlet.html
     //ImageIcon photo = new ImageIcon(MemoriesUtil.class.getResource("TweedleDum.jpg"));
-    ImageIcon photo = new ImageIcon(file);
+    //ImageIcon photo = new ImageIcon(file);
+    URL url = new URL(urlString);
+    Image image = ImageIO.read(url);
+    ImageIcon photo = new ImageIcon(image);
     BufferedImage bi = new BufferedImage(photo.getIconWidth(), photo.getIconHeight(), BufferedImage.TYPE_INT_RGB);
     Graphics2D g2d = (Graphics2D) bi.getGraphics();
     g2d.drawImage(photo.getImage(), 0, 0, null);

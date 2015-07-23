@@ -775,7 +775,7 @@ public class App {
         reason("Because I said so.")
     ).ifSuccessful();
 
-    imageCreator = new MemoriesUtil();
+    this.imageCreator = new MemoriesUtil();
   }
 
   //Cleans up objects used by example methods
