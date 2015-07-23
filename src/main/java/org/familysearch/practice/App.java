@@ -551,7 +551,7 @@ public class App {
     //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage = null;
     try {
-      digitalImage = imageCreator.createUniqueImage("TweedleDum.jpg");
+      digitalImage = imageCreator.createUniqueImage("http://i60.tinypic.com/34xjigl.jpg");
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -588,7 +588,7 @@ public class App {
     //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage = null;
     try {
-      digitalImage = imageCreator.createUniqueImage("Obituary.jpg");
+      digitalImage = imageCreator.createUniqueImage("http://i62.tinypic.com/qsrwhx.jpg");
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -609,7 +609,7 @@ public class App {
     //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage = null;
     try {
-      digitalImage = imageCreator.createUniqueImage("TweedleDum.jpg");
+      digitalImage = imageCreator.createUniqueImage("http://i61.tinypic.com/o09lkk.jpg");
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -625,7 +625,7 @@ public class App {
     //add the persona
     PersonState persona = artifact.addPersona(new Person()
       //named TweedleDum
-      .name(new Name("Personaxx Tweedle Dum", new NamePart(NamePartType.Given, "Personaxx Tweedle"), new NamePart(NamePartType.Surname, "Dum")).preferred(true)));
+      .name(new Name("Persona Tweedle Dum", new NamePart(NamePartType.Given, "Persona Tweedle"), new NamePart(NamePartType.Surname, "Dum")).preferred(true)));
     this.persona = persona.get();
 
     System.out.println("Creating memory person: find at " + persona.getResponse().getLocation());
@@ -658,7 +658,7 @@ public class App {
     //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage = null;
     try {
-      digitalImage = imageCreator.createUniqueImage("FamilyPortrait.jpg");
+      digitalImage = imageCreator.createUniqueImage("http://i62.tinypic.com/2vkn3mo.jpg");
     } catch (IOException e) {
       e.printStackTrace();
     }
