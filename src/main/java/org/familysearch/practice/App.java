@@ -13,15 +13,15 @@ import org.familysearch.platform.discussions.Discussion;
 import org.gedcomx.atom.Entry;
 import org.gedcomx.common.EvidenceReference;
 import org.gedcomx.common.Note;
+import org.gedcomx.common.ResourceReference;
+import org.gedcomx.common.TextValue;
 import org.gedcomx.conclusion.*;
+import org.gedcomx.records.Field;
 import org.gedcomx.rs.client.*;
 import org.gedcomx.rs.client.util.GedcomxPersonSearchQueryBuilder;
 import org.gedcomx.source.SourceDescription;
 import org.gedcomx.source.SourceReference;
-import org.gedcomx.types.FactType;
-import org.gedcomx.types.GenderType;
-import org.gedcomx.types.NamePartType;
-import org.gedcomx.types.NameType;
+import org.gedcomx.types.*;
 
 import javax.activation.DataSource;
 import java.io.IOException;
@@ -496,12 +496,12 @@ public class App {
     PersonState person = this.person.get();
 
     Gender gender = person.getGender();
-    String originalGender = gender.toString();
+    String originalGender = gender.getKnownType().name();
     gender.setKnownType(GenderType.Female);
     person.updateGender(gender, reason("Because I said so.")); //update gender
 
     System.out.println("Updating gender of " + person.getName().getNameForm().getFullText() +
-        " changed from " + originalGender + " to " + person.getGender().toString());
+        " changed from " + originalGender + " to " + person.getGender().getKnownType().name());
   }
 
   public void updateFact () {
@@ -578,7 +578,22 @@ public class App {
         //and authenticate.
         .authenticateViaOAuth2Password(username, password, developerKey);
     this.fsMemories = fsMemories;
-    PersonState p = fsMemories.readPerson(this.person.getUri());
+
+    SourceDescription description = fsMemories.getSourceDescriptions().get(0);
+    org.gedcomx.common.URI uri1 = description.getAbout();
+    ResourceReference reference1 = description.getAnalysis();
+    SourceReference reference2 = description.getComponentOf();
+    List<TextValue> values1 = description.getDescriptions();
+    ResourceReference reference3 = description.getDescriptorRef();
+    List<Field> fields = description.getFields();
+    List<Identifier> identifiers = description.getIdentifiers();
+    ResourceType type = description.getKnownType();
+    String string = description.getMediaType();
+    org.gedcomx.common.URI uri2 = description.getPersistentId();
+    org.gedcomx.common.URI uri3 = description.getResourceType();
+    List<SourceReference> sources = description.getSources();
+    TextValue value2 = description.getTitle();
+    TextValue value3 = description.getTitleLabel();
   }
 
   //Upload Photo or Story or Document
@@ -623,26 +638,25 @@ public class App {
     );
 
     //add the persona
-    PersonState persona = artifact.addPersona(new Person()
-      //named TweedleDum
-      .name(new Name("Persona Tweedle Dum", new NamePart(NamePartType.Given, "Persona Tweedle"), new NamePart(NamePartType.Surname, "Dum")).preferred(true)));
-    this.persona = persona.get();
-
-    System.out.println("Creating memory person: find at " + persona.getResponse().getLocation());
+//    PersonState persona = artifact.addPersona(new Person()
+//        .name(new Name("Persona Tweedle Dumx", new NamePart(NamePartType.Given, "Persona Tweedle"), new NamePart(NamePartType.Surname, "Dum")).preferred(true))).ifSuccessful();
+//    this.persona = persona.get();
+//
+//    System.out.println("Creating memory persona: find at " + persona.get().getResponse().getLocation());
   }
 
   //Create a Persona Reference
   public void createPersonaReference () {
     //the person that will be citing the record, source, or artifact.
-    PersonState person = this.person;
+    PersonState person = this.person.get();
 
     //the persona that was extracted from a record or artifact.
-    PersonState persona = this.persona;
+//    PersonState persona = this.persona.get();
 
     //add the persona reference.
-    person.addPersonaReference(persona);
+//    person.addPersonaReference(persona);
 
-    //System.out.println("Creating persona reference between " + person.getPerson().getId() + " and " + persona.getPerson().getId());
+//    System.out.println("Creating persona reference between " + person.getPerson().getId() + " and " + persona.getPerson().getId());
   }
 
   //Attach a Photo to Multiple Persons
@@ -651,9 +665,9 @@ public class App {
     CollectionState fsMemories = this.fsMemories;
 
     //the persons to which the photo will be attached.
-    PersonState person1 = this.person;
-    PersonState person2 = this.papa;
-    PersonState person3 = this.mama;
+    PersonState person1 = this.person.get();
+    PersonState person2 = this.papa.get();
+    PersonState person3 = this.mama.get();
 
     //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage = null;
@@ -674,10 +688,10 @@ public class App {
     person2.addMediaReference(artifact); //attach to person2
     person3.addMediaReference(artifact); //attach to person3
 
-//    System.out.println("Attaching photo to multiple persons: Attaching photo at " + artifact.getResponse().getLocation() + " with" +
-//        "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person1.getPerson().getId() +
-//        "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person2.getPerson().getId() +
-//        "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person3.getPerson().getId());
+    System.out.println("Attaching photo to multiple persons: Attaching photo at " + artifact.getResponse().getLocation() + " with" +
+        "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person1.getPerson().getId() +
+        "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person2.getPerson().getId() +
+        "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person3.getPerson().getId());
   }
 
   public static void main(String[] args){
@@ -786,7 +800,7 @@ public class App {
     this.mama.delete();
     this.person2.delete();
     this.discussion.delete();
-    this.persona.delete();
+//    this.persona.delete();
     this.source.delete();
   }
 }

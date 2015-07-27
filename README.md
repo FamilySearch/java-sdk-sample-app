@@ -2,8 +2,7 @@
 Sample Application of FamilySearch API SDK
 
 This project demonstrates how to use the FamilySearch API and SDK. It offers examples of the
-documentation provided at:
-https://github.com/FamilySearch/gedcomx-java/tree/master/extensions/familysearch/familysearch-api-client
+documentation provided at https://github.com/FamilySearch/gedcomx-java/tree/master/extensions/familysearch/familysearch-api-client
 
 This repository includes two runnable classes:
 
