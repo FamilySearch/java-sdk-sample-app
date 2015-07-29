@@ -161,7 +161,7 @@ public class App {
     ).ifSuccessful();
 
     if (person.getResponse().getClientResponseStatus().getStatusCode() == 201) {
-      System.out.println("\tCreation succeeded. Person can be found at " + person.getSelfUri().toString());
+      System.out.println("\tCreation succeeded. Person can be viewed at https://sandbox.familysearch.org/tree/#view=ancestor&person=" + person.get().getPerson().getId());
     }
     else {
       System.out.println("Creation failed. Response code " + person.getResponse().getClientResponseStatus().toString());
@@ -212,9 +212,9 @@ public class App {
   public void createSource () {
     FamilySearchFamilyTree ft = this.ft;
 
-    System.out.println("Creating source1...");
+    System.out.println("Creating source...");
 
-    //add a source1 description
+    //add a source description
     SourceDescriptionState source = ft.addSourceDescription(new SourceDescription()
             //about some resource.
             .about(org.gedcomx.common.URI.create("https://sandbox.familysearch.org/ark:/61903/4:1:KWHL-3TP"))
@@ -223,7 +223,7 @@ public class App {
                 //and a citation
             .citation("Citation for the birth certificate")
                 //and a note
-            .note(new Note().text("Some note for the source1.")),
+            .note(new Note().text("Some note for the source.")),
         //with a change message.
         reason("Because I said so.")
     );
@@ -238,30 +238,30 @@ public class App {
 
   //Create a Source Reference
   public void createSourceReference () {
-    System.out.println("Creating source1 reference...");
+    System.out.println("Creating source reference...");
 
-    //the person that will be citing the record, source1, or artifact.
+    //the person that will be citing the record, source, or artifact.
     PersonState person = this.person.get();
 
     SourceDescriptionState source = this.source1;
 
-    person.addSourceReference(source, reason("Because I said so.")).ifSuccessful(); //cite the source1.
+    person.addSourceReference(source, reason("Because I said so.")).ifSuccessful(); //cite the source.
 
-    System.out.println("\tSource reference should have been created. See reference at https://sandbox.familysearch.org/tree/#view=ancestor&person=" + person.getPerson().getId());
+    System.out.println("\tSource reference created. See reference at https://sandbox.familysearch.org/tree/#view=ancestor&person=" + person.getPerson().getId());
 
     this.source2 = source;
   }
 
   //Read Everything Attached to a Source
   public void readSource () {
-    //the source1.
+    //the source.
     SourceDescriptionState source = this.source1.get();
 
     SourceDescriptionState attachedReferences = ((FamilySearchSourceDescriptionState) source).queryAttachedReferences().ifSuccessful();
 
-    //iterate through the persons attached to the source1
+    //iterate through the persons attached to the source
     List<Person> persons = attachedReferences.getEntity().getPersons();
-    System.out.println("Reading source1 at " + source.getUri() + "\n\t" + persons.size() + " person(s) attached to this source1:");
+    System.out.println("Reading source at " + source.getUri() + "\n\t" + persons.size() + " person(s) attached to this source:");
     for(Person person: persons){
       System.out.println("\t" + person.getId());
     }
@@ -278,17 +278,17 @@ public class App {
 
   //Read Source References
   public void readSourceReferences () {
-    //the person on which to read the source1 references.
+    //the person on which to read the source references.
     PersonState person = this.person.get();
 
-    //load the source1 references for the person.
+    //load the source references for the person.
     person.loadSourceReferences();
 
-    //read the source1 references.
+    //read the source references.
     List<SourceReference> sourceRefs = person.getPerson().getSources();
     if (null != sourceRefs) {
       org.gedcomx.common.URI uri = sourceRefs.get(0).getDescriptionRef();
-      System.out.println("Reading source1 references: First one found at " + uri.toString());
+      System.out.println("Reading source references: First one found at " + uri.toString());
     }
   }
 
@@ -310,23 +310,23 @@ public class App {
 
   //Read Discussion References
   public void readDiscussionReferences () {
-    //Create discussion2 to be read
+    //Create discussion to be read
     DiscussionState discussion = ft.addDiscussion(new Discussion().title("Unsure of gender").details("Deets"), reason("Because I said so."));
     this.discussion1 = discussion;
-    //Attach discussion2 to person
+    //Attach discussion to person
     ((FamilyTreePersonState) this.person).addDiscussionReference(discussion, reason("Because I said so."));
 
-    //the person on which to read the discussion2 references.
+    //the person on which to read the discussion references.
     PersonState person = this.person.get();
 
-    //load the discussion2 references for the person.
+    //load the discussion references for the person.
     ((FamilyTreePersonState) person).loadDiscussionReferences();
 
-    //read the discussion2 references.
+    //read the discussion references.
     List<DiscussionReference> discussionRefs = person.getPerson().findExtensionsOfType(DiscussionReference.class);
     if (null != discussionRefs) {
       org.gedcomx.common.URI uri = discussionRefs.get(0).getResource();
-      System.out.println("Reading discussion2 references: First one found at " + uri.toString());
+      System.out.println("Reading discussion references: First one found at " + uri.toString());
     }
   }
 
@@ -343,7 +343,7 @@ public class App {
     //load the notes for the person.
     person.loadNotes();
 
-    //read the discussion2 references.
+    //read the discussion references.
     List<Note> notes = person.getPerson().getNotes();
     if  (null != notes) {
 
@@ -534,7 +534,7 @@ public class App {
   public void createDiscussion () {
     FamilySearchFamilyTree ft = this.ft;
 
-    //add a discussion2 description
+    //add a discussion description
     DiscussionState discussion = ft.addDiscussion(new Discussion()
             //with a title.
             .title("What about this").details("Deets"),
@@ -547,12 +547,12 @@ public class App {
 
   //Attach a Discussion
   public void attachDiscussion () {
-    //the person that will be referencing the discussion2.
+    //the person that will be referencing the discussion.
     PersonState person = this.person.get();
 
     DiscussionState discussion = this.discussion2;
 
-    ((FamilyTreePersonState) person).addDiscussionReference(discussion, reason("Because I said so.")); //reference the discussion2.
+    ((FamilyTreePersonState) person).addDiscussionReference(discussion, reason("Because I said so.")); //reference the discussion.
     System.out.println("Attaching discussion: Attached to person at https://sandbox.familysearch.org/tree/#view=ancestor&person=" + person.getPerson().getId());
   }
 
@@ -565,7 +565,8 @@ public class App {
     DataSource digitalImage = null;
     try {
       digitalImage = imageCreator.createUniqueImage("http://i60.tinypic.com/34xjigl.jpg");
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       e.printStackTrace();
     }
 
@@ -603,7 +604,8 @@ public class App {
     DataSource digitalImage = null;
     try {
       digitalImage = imageCreator.createUniqueImage("http://i62.tinypic.com/qsrwhx.jpg");
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       e.printStackTrace();
     }
 
@@ -625,7 +627,8 @@ public class App {
     DataSource digitalImage = null;
     try {
       digitalImage = imageCreator.createUniqueImage("http://i61.tinypic.com/o09lkk.jpg");
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       e.printStackTrace();
     }
 
@@ -648,7 +651,7 @@ public class App {
 
   //Create a Persona Reference
   public void createPersonaReference () {
-    //the person that will be citing the record, source1, or artifact.
+    //the person that will be citing the record, source, or artifact.
     PersonState person = this.person.get();
 
     //the persona that was extracted from a record or artifact.
@@ -674,7 +677,8 @@ public class App {
     DataSource digitalImage = null;
     try {
       digitalImage = imageCreator.createUniqueImage("http://i62.tinypic.com/2vkn3mo.jpg");
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       e.printStackTrace();
     }
 
@@ -744,14 +748,15 @@ public class App {
       app.createMemoryPersona();
       app.createPersonaReference();
       app.readPersonaReferences();
-      app.attachPhotoToMultiplePersons();   //uploading but not attaching
+      app.attachPhotoToMultiplePersons();
 
       System.out.println("SampleApp complete." +
           "\nReady to delete example objects? (y/n)");
       if(!scan.next().equals("n")){
         app.tearDown();
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
     System.out.println("Terminated.");
