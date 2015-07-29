@@ -13,15 +13,15 @@ import org.familysearch.platform.discussions.Discussion;
 import org.gedcomx.atom.Entry;
 import org.gedcomx.common.EvidenceReference;
 import org.gedcomx.common.Note;
-import org.gedcomx.common.ResourceReference;
-import org.gedcomx.common.TextValue;
 import org.gedcomx.conclusion.*;
-import org.gedcomx.records.Field;
 import org.gedcomx.rs.client.*;
 import org.gedcomx.rs.client.util.GedcomxPersonSearchQueryBuilder;
 import org.gedcomx.source.SourceDescription;
 import org.gedcomx.source.SourceReference;
-import org.gedcomx.types.*;
+import org.gedcomx.types.FactType;
+import org.gedcomx.types.GenderType;
+import org.gedcomx.types.NamePartType;
+import org.gedcomx.types.NameType;
 
 import javax.activation.DataSource;
 import java.io.IOException;
@@ -501,7 +501,7 @@ public class App {
     name.getNameForm().setFullText("Tweedle Dum");
     person.updateName(name, reason("Because I said so.")); //update name
 
-    System.out.println("Updating name of " + originalName + " changed to " + person.get().getName().getNameForm().getFullText());
+    System.out.println("Updating name of " + originalName + ": changed to " + person.get().getName().getNameForm().getFullText());
   }
 
   public void updateGender () {
@@ -514,7 +514,7 @@ public class App {
     person.updateGender(gender, reason("Because I said so.")); //update gender
 
     System.out.println("Updating gender of " + person.getName().getNameForm().getFullText() +
-        " changed from " + originalGender + " to " + person.getGender().getKnownType().name());
+        ": changed from " + originalGender + " to " + person.getGender().getKnownType().name());
   }
 
   public void updateFact () {
@@ -527,7 +527,7 @@ public class App {
     person.updateFact(death, reason("Because I said so."));
 
     System.out.println("Updating fact of death date of " + person.getName().getNameForm().getFullText() +
-        " changed from " + originalDate + " to " + person.getPerson().getFirstFactOfType(FactType.Death).getDate().getOriginal());
+        ": changed from " + originalDate + " to " + person.getPerson().getFirstFactOfType(FactType.Death).getDate().getOriginal());
   }
 
   //Create a Discussion
@@ -542,7 +542,7 @@ public class App {
         reason("Because I said so.")
     );
     this.discussion2 = discussion;
-    System.out.println("Creating discussion2: Find at " + discussion.getResponse().getLocation());
+    System.out.println("Creating discussion: Find at " + discussion.getResponse().getLocation());
   }
 
   //Attach a Discussion
@@ -553,7 +553,7 @@ public class App {
     DiscussionState discussion = this.discussion2;
 
     ((FamilyTreePersonState) person).addDiscussionReference(discussion, reason("Because I said so.")); //reference the discussion2.
-    System.out.println("Attaching discussion2: Attached to person at https://sandbox.familysearch.org/tree/#view=ancestor&person=" + person.getPerson().getId());
+    System.out.println("Attaching discussion: Attached to person at https://sandbox.familysearch.org/tree/#view=ancestor&person=" + person.getPerson().getId());
   }
 
   //Attach a Photo to a Person
@@ -592,22 +592,7 @@ public class App {
         //and authenticate.
         .authenticateViaOAuth2Password(username, password, developerKey);
     this.fsMemories = fsMemories;
-
-    SourceDescription description = fsMemories.getSourceDescriptions().get(0);
-    org.gedcomx.common.URI uri1 = description.getAbout();
-    ResourceReference reference1 = description.getAnalysis();
-    SourceReference reference2 = description.getComponentOf();
-    List<TextValue> values1 = description.getDescriptions();
-    ResourceReference reference3 = description.getDescriptorRef();
-    List<Field> fields = description.getFields();
-    List<Identifier> identifiers = description.getIdentifiers();
-    ResourceType type = description.getKnownType();
-    String string = description.getMediaType();
-    org.gedcomx.common.URI uri2 = description.getPersistentId();
-    org.gedcomx.common.URI uri3 = description.getResourceType();
-    List<SourceReference> sources = description.getSources();
-    TextValue value2 = description.getTitle();
-    TextValue value3 = description.getTitleLabel();
+    System.out.println("Reading memories: successful");
   }
 
   //Upload Photo or Story or Document
