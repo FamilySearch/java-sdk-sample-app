@@ -97,14 +97,15 @@ public class App {
     FamilySearchFamilyTree ft = this.ft;
 
     FamilyTreePersonState person = null;
-    if(withRelationships){
+    if (withRelationships) {
       person = ft.readPersonWithRelationshipsById(pid);
       System.out.println("Reading person by FamilyTreeId with relationships: Person " + pid + " is " + person.getName().getNameForm().getFullText() +
           ", who has " + person.getRelationships().size() + " relationships");
     }
     else {
       person = ft.readPersonById(pid);
-      System.out.println("Reading person by FamilyTreeId without relationships: Person " + pid + " is " + person.getName().getNameForm().getFullText());
+      System.out.println("Reading person by FamilyTreeId without relationships: Person " + pid + " is " + person.getName().getNameForm().getFullText() +
+        ". Find at https://sandbox.familysearch.org/tree/#view=ancestor&person=" + person.get().getPerson().getId());
     }
   }
 
@@ -262,7 +263,7 @@ public class App {
     //iterate through the persons attached to the source
     List<Person> persons = attachedReferences.getEntity().getPersons();
     System.out.println("Reading source at " + source.getUri() + "\n\t" + persons.size() + " person(s) attached to this source:");
-    for(Person person: persons){
+    for (Person person: persons) {
       System.out.println("\t" + person.getId());
     }
   }
@@ -348,7 +349,7 @@ public class App {
     if  (null != notes) {
 
       System.out.println("Reading notes of " + person.getName().getNameForm().getFullText() + ":");
-      for(Note n: notes){
+      for (Note n: notes) {
         String subject = notes.get(0).getSubject();
         String text = notes.get(0).getText();
         System.out.println("\t" + subject + ": " + text);
@@ -366,7 +367,7 @@ public class App {
     PersonParentsState parents = person.readParents().ifSuccessful(); //read the parents
     if (null != parents) {
       List<Person> listOfParents = parents.getPersons();
-      for(Person parent: listOfParents){
+      for (Person parent: listOfParents) {
         PersonState parentState = parents.readParent(parent);
         System.out.println("\t" + parentState.getName().getNameForm().getFullText());
       }
@@ -383,7 +384,7 @@ public class App {
     PersonChildrenState children = person.readChildren().ifSuccessful(); //read the children
     if (null != children) {
       List<Person> listOfChildren = children.getPersons();
-      for(Person child: listOfChildren){
+      for (Person child: listOfChildren) {
         PersonState childState = children.readChild(child);
         System.out.println("\t" + childState.getName().getNameForm().getFullText());
       }
@@ -399,7 +400,7 @@ public class App {
     PersonSpousesState spouses = person.readSpouses().ifSuccessful(); //read the spouses
      if (null != spouses) {
        List<Person> listOfSpouses = spouses.getPersons();
-       for(Person spouse: listOfSpouses){
+       for (Person spouse: listOfSpouses) {
          PersonState spouseState = spouses.readSpouse(spouse);
          System.out.println("\t" + spouseState.getName().getNameForm().getFullText());
        }
@@ -450,7 +451,7 @@ public class App {
     //iterate through the matches.
     List<Entry> entries = matches.getResults().getEntries();
     if (null != entries) {
-      for(Entry entry: entries){
+      for (Entry entry: entries) {
         org.gedcomx.common.URI id = entry.getId();
         System.out.println("\t" + id);
       }
@@ -752,7 +753,7 @@ public class App {
 
       System.out.println("SampleApp complete." +
           "\nReady to delete example objects? (y/n)");
-      if(!scan.next().equals("n")){
+      if (!scan.next().equals("n")) {
         app.tearDown();
       }
     }

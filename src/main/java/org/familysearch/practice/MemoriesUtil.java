@@ -44,22 +44,22 @@ public class MemoriesUtil {
     ImageIO.write(bi, "jpg", imageOut);
     imageOut.close();
     return new DataSource() {
-      @Override
+
       public InputStream getInputStream() throws IOException {
         return new ByteArrayInputStream(imageOut.toByteArray());
       }
 
-      @Override
+
       public OutputStream getOutputStream() throws IOException {
         return null;
       }
 
-      @Override
+
       public String getContentType() {
         return "image/jpg";
       }
 
-      @Override
+
       public String getName() {
         return "face.jpg";
       }
@@ -69,22 +69,22 @@ public class MemoriesUtil {
   public static DataSource createUniqueStory() throws IOException {
     final UUID randomness = UUID.randomUUID();
     return new DataSource() {
-      @Override
+
       public InputStream getInputStream() throws IOException {
         return new ByteArrayInputStream(("Here is a bunch of text that is intended to tell a story about " + randomness + ".").getBytes("utf-8"));
       }
 
-      @Override
+
       public OutputStream getOutputStream() throws IOException {
         return null;
       }
 
-      @Override
+
       public String getContentType() {
         return "text/plain";
       }
 
-      @Override
+
       public String getName() {
         return randomness + ".txt";
       }
