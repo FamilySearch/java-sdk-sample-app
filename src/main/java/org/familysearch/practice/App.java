@@ -45,6 +45,7 @@ public class App {
   private MemoriesUtil imageCreator;
   private FamilySearchMemories fsMemories;
 
+  //Created and destroyed in the API
   private PersonState person;
   private PersonState papa;
   private PersonState mama;
@@ -468,8 +469,8 @@ public class App {
     //iterate through the matches.
     List<Entry> entries = matches.getResults().getEntries();
 
-    PersonNonMatchesState state = matches.addNonMatch(entries.get(2), reason("Because I said so."));
-    System.out.println("Declaring " + entries.get(2).getId() + " not a match...");
+    PersonNonMatchesState state = matches.addNonMatch(entries.get(0), reason("Because I said so."));
+    System.out.println("Declaring " + entries.get(2).getId() + " not a match");
   }
 
   //Add a Name or Fact

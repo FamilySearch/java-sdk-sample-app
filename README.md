@@ -19,12 +19,9 @@ To successfully run SampleApp:
 
 3.  Set up the SDK as 1.7. In Intellij, it will prompt you to do so.
 
-4.  In MemoriesUtil.java, set the language level to 6 to compile @Override in interfaces. In Intellij,
-    it will prompt you do so.
+4.  Set the target release to 1.6. In Intellij, you can do this by going to Settings, going to
+    "Java Compiler," and changing the version under "Target bytecode version" to "1.6".
 
-5.  Set the target release to 1.6. In Intellij, you can do this by going to Settings, going to
-    "Java Compiler," and changing the version under "Target bytecode version" to "1.6"
+5.  Run either App or PersonStateExample.
 
-6.  Run either main class
-
-7.  As prompted, provide a valid username, password, and developer key.
+6.  As prompted, provide a valid username, password, and developer key.

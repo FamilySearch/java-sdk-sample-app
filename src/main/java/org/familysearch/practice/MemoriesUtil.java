@@ -21,8 +21,6 @@ public class MemoriesUtil {
 
   public static DataSource createUniqueImage(String urlString) throws IOException {
     //Lifted from http://www.codebeach.com/2008/02/watermarking-images-in-java-servlet.html
-    //ImageIcon photo = new ImageIcon(MemoriesUtil.class.getResource("TweedleDum.jpg"));
-    //ImageIcon photo = new ImageIcon(file);
     URL url = new URL(urlString);
     Image image = ImageIO.read(url);
     ImageIcon photo = new ImageIcon(image);
@@ -49,16 +47,13 @@ public class MemoriesUtil {
         return new ByteArrayInputStream(imageOut.toByteArray());
       }
 
-
       public OutputStream getOutputStream() throws IOException {
         return null;
       }
 
-
       public String getContentType() {
         return "image/jpg";
       }
-
 
       public String getName() {
         return "face.jpg";
@@ -74,16 +69,13 @@ public class MemoriesUtil {
         return new ByteArrayInputStream(("Here is a bunch of text that is intended to tell a story about " + randomness + ".").getBytes("utf-8"));
       }
 
-
       public OutputStream getOutputStream() throws IOException {
         return null;
       }
 
-
       public String getContentType() {
         return "text/plain";
       }
-
 
       public String getName() {
         return randomness + ".txt";
