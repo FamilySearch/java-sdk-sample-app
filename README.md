@@ -25,8 +25,8 @@ Steps:
 
 1.  Clone the repository at https://github.com/tygan/SampleApp.git
 2.  Add the SampleApp project as a Maven project. In Intellij, it will prompt you to do so.
-3.  Set up the SDK as 1.7. In Intellij, it will prompt you to do so.
-4.  Set the target release to 1.6. In Intellij, you can do this by going to Settings, going to
+3.  Ensure the SDK is set up as 1.7. In Intellij, it will prompt you to do so.
+4.  If needed, set the target release to 1.6. In Intellij, you can do this by going to Settings, going to
     "Java Compiler," and changing the version under "Target bytecode version" to "1.6".
 5.  Run either App or PersonStateExample.
 6.  As prompted, provide a valid username, password, and developer key.
