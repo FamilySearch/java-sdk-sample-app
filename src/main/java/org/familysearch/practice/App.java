@@ -1,13 +1,9 @@
 package org.familysearch.practice;
 
-import org.familysearch.api.client.DiscussionState;
-import org.familysearch.api.client.FamilySearchSourceDescriptionState;
-import org.familysearch.api.client.PersonMatchResultsState;
-import org.familysearch.api.client.PersonNonMatchesState;
+import org.familysearch.api.client.*;
 import org.familysearch.api.client.ft.ChildAndParentsRelationshipState;
 import org.familysearch.api.client.ft.FamilySearchFamilyTree;
 import org.familysearch.api.client.ft.FamilyTreePersonState;
-import org.familysearch.api.client.memories.FamilySearchMemories;
 import org.familysearch.platform.ct.DiscussionReference;
 import org.familysearch.platform.discussions.Discussion;
 import org.gedcomx.atom.Entry;
@@ -43,6 +39,7 @@ public class App {
   private FamilySearchFamilyTree ft;
   private String pid;
   private MemoriesUtil imageCreator;
+
   private FamilySearchMemories fsMemories;
 
   //Created and destroyed in the API
@@ -593,9 +590,8 @@ public class App {
     //read the Family Tree
     FamilySearchMemories fsMemories = new FamilySearchMemories(useSandbox)
         //and authenticate.
-        .authenticateViaOAuth2Password(username, password, developerKey);
-    this.fsMemories = fsMemories;
-    System.out.println("Reading memories: successful");
+        .authenticateViaOAuth2Password(username, password, developerKey).ifSuccessful();
+    this.fsMemories = fsMemories.get();
   }
 
   //Upload Photo or Story or Document
