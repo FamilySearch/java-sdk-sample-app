@@ -1,6 +1,4 @@
-# gedcomx-java-sample-app
-
-FamilySearch API Java SDK Sample App
+# FamilySearch API Java SDK Sample App
 
 An application that demonstrates the usage of the [Java SDK](https://github.com/FamilySearch/gedcomx-java/tree/master/extensions/familysearch/familysearch-api-client) library for the FamilySearch API.
 
