@@ -644,11 +644,11 @@ public class App {
     this.artifact3 = artifact;
 
     //add the persona
-//    PersonState persona = artifact.addPersona(new Person()
-//        .name(new Name("Persona Tweedle Dumx", new NamePart(NamePartType.Given, "Persona Tweedle"), new NamePart(NamePartType.Surname, "Dum")).preferred(true))).ifSuccessful();
-//    this.persona = persona.get();
-//
-//    System.out.println("Creating memory persona: find at " + persona.get().getResponse().getLocation());
+    PersonState persona = artifact.addPersona(new Person()
+        .name(new Name("Persona Tweedle Dumx", new NamePart(NamePartType.Given, "Persona Tweedle"), new NamePart(NamePartType.Surname, "Dum")).preferred(true))).ifSuccessful();
+    this.persona = persona.get();
+
+    System.out.println("Creating memory persona: find at " + persona.get().getResponse().getLocation());
   }
 
   //Create a Persona Reference
@@ -770,7 +770,7 @@ public class App {
 
     //Used as person and child
     this.person = ft.addPerson(new Person()
-            .name(new Name("Jack Sprat", new NamePart(NamePartType.Given, "Jack"), new NamePart(NamePartType.Surname, "Sprat")).preferred(true))
+            .name(new Name("Jack Sprat", new NamePart(NamePartType.Given, "Jack"), new NamePart(NamePartType.Surname, "Sprat")))
             .gender(GenderType.Male)
             .fact(new Fact(FactType.Birth, "1 January 1890", "Chicago, Illinois"))
             .fact(new Fact(FactType.Death, "1 January 1970", "New York, New York")),
