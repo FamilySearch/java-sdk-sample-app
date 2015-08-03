@@ -6,6 +6,7 @@ import org.gedcomx.conclusion.Fact;
 import org.gedcomx.conclusion.Name;
 import org.gedcomx.conclusion.NamePart;
 import org.gedcomx.conclusion.Person;
+import org.gedcomx.rs.client.GedcomxApplicationException;
 import org.gedcomx.rs.client.PersonState;
 import org.gedcomx.rs.client.RelationshipState;
 import org.gedcomx.types.FactType;
@@ -128,7 +129,8 @@ public class PersonStateExample {
     System.out.println("\tURL: " + personState.getUri());
 
     //Get url for human-viewable page
-    System.out.println("\tHuman-viewable page: https://sandbox.familysearch.org/tree/#view=ancestor&person=" + this.pid);
+    System.out.println("\tHuman-viewable page: https://sandbox.familysearch.org/tree/#view=ancestor&person=" +
+        this.pid);
 
     //Get living status
     System.out.println("\tLiving: " + person.getLiving().toString());
@@ -195,13 +197,17 @@ public class PersonStateExample {
         app.tearDown();
       }
     }
+    catch (GedcomxApplicationException e) {
+      System.out.println("\tThe following critical process failed, so PersonStateExample is terminating:");
+      e.printStackTrace();
+    }
     catch (Exception e) {
       e.printStackTrace();
     }
     System.out.println("Terminated.");
   }
 
-  private void setUp (String username, String password, String developerKey) {
+  private void setUp (String username, String password, String developerKey) throws GedcomxApplicationException {
     System.out.println("Creating persons and relationships to use as examples...");
 
     this.persons = new ArrayList<PersonState>();
@@ -214,7 +220,8 @@ public class PersonStateExample {
     //Create persons to use for examples
     PersonState person1 = ft.addPerson(new Person()
             //named Johnny Lingo
-            .name(new Name("Johnny Lingo", new NamePart(NamePartType.Given, "Johnny"), new NamePart(NamePartType.Surname, "Lingo")).preferred(true))
+            .name(new Name("Johnny Lingo", new NamePart(NamePartType.Given, "Johnny"),
+                new NamePart(NamePartType.Surname, "Lingo")).preferred(true))
                 //male
             .gender(GenderType.Male)
                 //born in Honolulu in 1931
@@ -231,7 +238,8 @@ public class PersonStateExample {
 
     PersonState person2 = ft.addPerson(new Person()
             //named John Lingo
-            .name(new Name("John Lingo", new NamePart(NamePartType.Given, "John"), new NamePart(NamePartType.Surname, "Lingo")).preferred(true))
+            .name(new Name("John Lingo", new NamePart(NamePartType.Given, "John"),
+                new NamePart(NamePartType.Surname, "Lingo")).preferred(true))
                 //male
             .gender(GenderType.Male)
                 //born in Honolulu in 1905
@@ -245,7 +253,8 @@ public class PersonStateExample {
 
     PersonState person3 = ft.addPerson(new Person()
             //named Jeanette Leilokelani
-            .name(new Name("Jeanette Leilokelani", new NamePart(NamePartType.Given, "Jeanette"), new NamePart(NamePartType.Surname, "Leilokelani")).preferred(true))
+            .name(new Name("Jeanette Leilokelani", new NamePart(NamePartType.Given, "Jeanette"),
+                new NamePart(NamePartType.Surname, "Leilokelani")).preferred(true))
                 //female
             .gender(GenderType.Female)
                 //born in Honolulu in 1903
@@ -259,7 +268,8 @@ public class PersonStateExample {
 
     PersonState person4 = ft.addPerson(new Person()
             //named Mahana Ewalu Pipi Wahine
-            .name(new Name("Mahana Ewalu Pipi Wahine", new NamePart(NamePartType.Given, "Jeanette"), new NamePart(NamePartType.Surname, "Ewalu Pipi Wahine")).preferred(true))
+            .name(new Name("Mahana Ewalu Pipi Wahine", new NamePart(NamePartType.Given, "Jeanette"),
+                new NamePart(NamePartType.Surname, "Ewalu Pipi Wahine")).preferred(true))
                 //female
             .gender(GenderType.Female)
                 //born in chicago in 1933
@@ -272,11 +282,14 @@ public class PersonStateExample {
     persons.add(person4);
 
     //Creating couple relationships
-    RelationshipState coupleRelationship1 = ft.addSpouseRelationship(person2, person3, reason("Because I said so.")).ifSuccessful();
-    RelationshipState coupleRelationship2 = ft.addSpouseRelationship(person1, person4, reason("Because I said so.")).ifSuccessful();
+    RelationshipState coupleRelationship1 =
+        ft.addSpouseRelationship(person2, person3, reason("Because I said so.")).ifSuccessful();
+    RelationshipState coupleRelationship2 =
+        ft.addSpouseRelationship(person1, person4, reason("Because I said so.")).ifSuccessful();
 
     //Creating parent-child relationships
-    ChildAndParentsRelationshipState childParentRelationship = ft.addChildAndParentsRelationship(person1, person2, person3, reason("Because I said so."));
+    ChildAndParentsRelationshipState childParentRelationship =
+        ft.addChildAndParentsRelationship(person1, person2, person3, reason("Because I said so."));
   }
 
   private void tearDown () {
