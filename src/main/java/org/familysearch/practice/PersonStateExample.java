@@ -6,9 +6,7 @@ import org.gedcomx.conclusion.Fact;
 import org.gedcomx.conclusion.Name;
 import org.gedcomx.conclusion.NamePart;
 import org.gedcomx.conclusion.Person;
-import org.gedcomx.rs.client.GedcomxApplicationException;
-import org.gedcomx.rs.client.PersonState;
-import org.gedcomx.rs.client.RelationshipState;
+import org.gedcomx.rs.client.*;
 import org.gedcomx.types.FactType;
 import org.gedcomx.types.GenderType;
 import org.gedcomx.types.NamePartType;
@@ -31,14 +29,15 @@ public class PersonStateExample {
   private FamilySearchFamilyTree ft = null;
   private List<PersonState> persons;
 
-  public void doMain () {
+  public void doMain () throws GedcomxApplicationException {
     //Get person
     System.out.println("Get personState with pid " + this.pid + "...");
     PersonState personState = ft.readPersonById(pid).ifSuccessful();
-    Person person = personState.getPerson();///
+    Person person = personState.getPerson();
 
     //Get Display Properties
     System.out.println("Reading person details via display properties...");
+
     //Get name via display propterties
     String personName = personState.getDisplayProperties().getName();
     System.out.println("\tName: " + personName);
@@ -107,7 +106,7 @@ public class PersonStateExample {
 
     //Get marriage
     Fact marriage = personState.getPerson().getFirstFactOfType(FactType.Marriage);
-    if(null != marriage) {
+    if (null != marriage) {
       System.out.println("\tMarriage date: " + marriage.getDate().getOriginal() +
           "\n\tMarriage place: " + marriage.getPlace().getOriginal());
     }
@@ -117,7 +116,7 @@ public class PersonStateExample {
 
     //Get death
     Fact death = personState.getPerson().getFirstFactOfType(FactType.Death);
-    if(null != death) {
+    if (null != death) {
       System.out.println("\tDeath date: " + death.getDate().getOriginal() +
           "\n\tDeath place: " + death.getPlace().getOriginal());
     }
@@ -142,42 +141,59 @@ public class PersonStateExample {
     System.out.println("Reading relationships...");
 
     //Get parents
-    List<Person> parents = personState.readParents().getPersons();
-    if (null != parents) {
-      System.out.println(personName + " has " + parents.size() + " parent(s):");
-      for (Person p : parents) {
-        System.out.println("\t" + p.getName().getNameForm().getFullText());
+    try {
+      PersonParentsState state = personState.readParents().ifSuccessful();
+      List<Person> parents = state.getPersons();
+      if (null != parents) {
+        System.out.println(personName + " has " + parents.size() + " parent(s):");
+        for (Person p : parents) {
+          System.out.println("\t" + p.getName().getNameForm().getFullText());
+        }
+      } else {
+        System.out.println(personName + " has no parents");
       }
-    } else {
-      System.out.println(personName + " has no parents");
+    }
+    catch (GedcomxApplicationException e) {
+      System.out.println("Problem reading parents: returned " + e.getResponse().toString());
     }
 
     //Get spouses
-    List<Person> spouses = personState.readSpouses().getPersons();
-    if (null != spouses) {
-      System.out.println(personName + " has " + spouses.size() + " spouse(s):");
-      for (Person p : spouses) {
-        System.out.println("\t" + p.getName().getNameForm().getFullText());
+    try {
+      PersonSpousesState state = personState.readSpouses().ifSuccessful();
+      List<Person> spouses = state.getPersons();
+      if (null != spouses) {
+        System.out.println(personName + " has " + spouses.size() + " spouse(s):");
+        for (Person p : spouses) {
+          System.out.println("\t" + p.getName().getNameForm().getFullText());
+        }
+      } else {
+        System.out.println(personName + " has no spouses");
       }
     }
-    else {
-      System.out.println(personName + " has no spouses");
+    catch (GedcomxApplicationException e) {
+      System.out.println("Problem reading spouses: returned " + e.getResponse().toString());
     }
 
     //Get children
-    List<Person> children = personState.readChildren().getPersons();
-    if (null != children) {
-      System.out.println(personName + " has " + children.size() + " child(ren):");
-      for (Person p : children) {
-        System.out.println("\t" + p.getName().getNameForm().getFullText());
+    try {
+      PersonChildrenState state = personState.readChildren().ifSuccessful();
+      List<Person> children = state.getPersons();
+      if (null != children) {
+        System.out.println(personName + " has " + children.size() + " child(ren):");
+        for (Person p : children) {
+          System.out.println("\t" + p.getName().getNameForm().getFullText());
+        }
+      } else {
+        System.out.println(personName + " has no children");
       }
     }
-    else {
-      System.out.println(personName + " has no children");
+    catch (GedcomxApplicationException e) {
+      System.out.println("Problem reading children: returned " + e.getResponse().toString());
     }
   }
 
-  public static void main (String[] args){
+
+  public static void main (String[] args) {
     PersonStateExample app = new PersonStateExample();
 
     System.out.println("Running PersonStateExample" +
@@ -193,7 +209,7 @@ public class PersonStateExample {
       app.doMain();
       System.out.println("PersonStateExample complete" +
           "\nReady to delete example persons? (y/n)");
-      if(!scan.next().equals("n")){
+      if (!scan.next().equals("n")) {
         app.tearDown();
       }
     }

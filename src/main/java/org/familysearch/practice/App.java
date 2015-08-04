@@ -763,7 +763,7 @@ public class App {
     //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage = null;
     try {
-      digitalImage = imageCreator.createUniqueImage("http://i60.tinypic.com/34xjigl.jpg");
+      digitalImage = this.imageCreator.createUniqueImage("http://i60.tinypic.com/34xjigl.jpg");
 
       //add an artifact
       SourceDescriptionState artifact = person.addArtifact(new SourceDescription()

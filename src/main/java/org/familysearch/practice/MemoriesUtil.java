@@ -12,6 +12,9 @@ import java.util.UUID;
 
 /**
  * @author Ryan Heaton
+ * altered by Tygan Shelton
+ * This class downloads an image at the given url and modifies it slightly to create a unique image.
+ * This is necessary because FamilySearch uploaded sources must be unique.
  */
 public class MemoriesUtil {
 
