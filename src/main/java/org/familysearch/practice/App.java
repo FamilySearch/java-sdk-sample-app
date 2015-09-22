@@ -29,7 +29,7 @@ import static org.familysearch.api.client.util.FamilySearchOptions.reason;
 import static org.gedcomx.rs.client.options.QueryParameter.generations;
 
 /**
- * Created by tyganshelton on 7/16/2015.
+ * Created by Tygan Shelton on 7/16/2015
  */
 public class App {
 
@@ -76,7 +76,6 @@ public class App {
   }
 
   //Read a Family Tree Person by Persistent ID
-  //Note: Does not work on sandbox
   public void readPersonByPersistentId () {
     System.out.println("Reading person by persistent id:");
 
@@ -91,7 +90,7 @@ public class App {
           .authenticateViaOAuth2Password(username, password, developerKey)
           .get()
           .ifSuccessful();
-      System.out.println("Person " + person.getSelfUri() + " is " +
+      System.out.println("\tPerson at " + person.getSelfUri() + " is " +
           person.getName().getNameForm().getFullText() + " (" + person.getPerson().getPersistentId() + ")");
     }
     catch (GedcomxApplicationException e) {
@@ -105,7 +104,7 @@ public class App {
     System.out.println("Reading person by FamilyTreeId:");
     String pid = this.pid;
     FamilySearchFamilyTree ft = this.ft;
-    FamilyTreePersonState person = null;
+    FamilyTreePersonState person;
 
     try {
       if (withRelationships) {
@@ -567,6 +566,10 @@ public class App {
       if (null != entries) {
         for (Entry entry : entries) {
           org.gedcomx.common.URI id = entry.getId();
+//          //get person
+//          FamilyTreePersonState temp = ft.readPersonById(pid).ifSuccessful();
+//          //delete
+//          temp.delete().ifSuccessful();
           System.out.println("\t" + id);
         }
       }
@@ -763,7 +766,7 @@ public class App {
     PersonState person = this.person.get();
 
     //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
-    DataSource digitalImage = null;
+    DataSource digitalImage;
     try {
       digitalImage = this.imageCreator.createUniqueImage("http://i60.tinypic.com/34xjigl.jpg");
 
@@ -818,10 +821,10 @@ public class App {
       FamilySearchMemories fsMemories = this.fsMemories;
 
       //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
-      DataSource digitalImage = null;
+      DataSource digitalImage;
 
       try {
-        digitalImage = imageCreator.createUniqueImage("http://i62.tinypic.com/qsrwhx.jpg");
+        digitalImage = this.imageCreator.createUniqueImage("http://i62.tinypic.com/qsrwhx.jpg");
 
         //add an artifact
         SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
@@ -855,10 +858,10 @@ public class App {
     PersonState person = this.person.get();
 
     //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
-    DataSource digitalImage = null;
+    DataSource digitalImage;
 
     try {
-      digitalImage = imageCreator.createUniqueImage("http://i61.tinypic.com/o09lkk.jpg");
+      digitalImage = this.imageCreator.createUniqueImage("http://i61.tinypic.com/o09lkk.jpg");
 
       //the artifact from which a persona will be extracted.
       SourceDescriptionState artifact = ft.addArtifact(new SourceDescription()
@@ -926,9 +929,9 @@ public class App {
       PersonState person3 = this.mama.get();
 
       //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
-      DataSource digitalImage = null;
+      DataSource digitalImage;
       try {
-        digitalImage = imageCreator.createUniqueImage("http://i62.tinypic.com/2vkn3mo.jpg");
+        digitalImage = this.imageCreator.createUniqueImage("http://i62.tinypic.com/2vkn3mo.jpg");
 
         //add an artifact
         SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
@@ -942,9 +945,9 @@ public class App {
         person3.addMediaReference(artifact).ifSuccessful(); //attach to person3
 
         System.out.println("\tAttached photo at " + artifact.getResponse().getLocation() + " with" +
-            "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person1.getPerson().getId() +
-            "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person2.getPerson().getId() +
-            "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=\"" + person3.getPerson().getId());
+            "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=" + person1.getPerson().getId() +
+            "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=" + person2.getPerson().getId() +
+            "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=" + person3.getPerson().getId());
 
       }
       catch (GedcomxApplicationException e) {
@@ -977,6 +980,7 @@ public class App {
       app.readFamilyTree();
       app.setUp();
 
+      app.readPersonByPersistentId();
       app.readPersonByFtId(false);
       app.readPersonByFtId(true);
       app.searchForMatch();
