@@ -84,13 +84,15 @@ public class App {
     String password = this.password;
     String developerKey = this.developerKey;
 
-    String ark = "https://familysearch.org/ark:/61903/4:1:LCJ6-DVV";
+    String ark = "https://integration.familysearch.org/ark:/61903/4:1:KWQM-Y2G";
 
     try {
       FamilyTreePersonState person = new FamilyTreePersonState(URI.create(ark))
-          .authenticateViaOAuth2Password(username, password, developerKey).ifSuccessful();
+          .authenticateViaOAuth2Password(username, password, developerKey)
+          .get()
+          .ifSuccessful();
       System.out.println("Person " + person.getSelfUri() + " is " +
-          person.getName().getNameForm().getFullText());
+          person.getName().getNameForm().getFullText() + " (" + person.getPerson().getPersistentId() + ")");
     }
     catch (GedcomxApplicationException e) {
       System.out.println("\tRead failed");
