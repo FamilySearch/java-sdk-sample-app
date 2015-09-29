@@ -855,8 +855,6 @@ public class App {
   public void createMemoryPersona () {
     System.out.println("Creating memory persona:");
 
-    PersonState person = this.person.get();
-
     //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage;
 
