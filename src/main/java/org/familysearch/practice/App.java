@@ -347,7 +347,7 @@ public class App {
       List<SourceReference> sourceRefs = person.getPerson().getSources();
       if (null != sourceRefs) {
         org.gedcomx.common.URI uri = sourceRefs.get(0).getDescriptionRef();
-        System.out.println("First one found at " + uri.toString());
+        System.out.println("\tFirst one found at " + uri.toString());
       }
     }
     catch (GedcomxApplicationException e) {
@@ -543,7 +543,7 @@ public class App {
       //Read a descendent's details
       String childName =
           state1.getTree().getRoot().getChildren().get(0).getPerson().getName().getNameForm().getFullText();
-      System.out.println("\tDescendent to read: " + childName);
+      System.out.println("\tFirst descendent: " + childName);
     }
     catch (GedcomxApplicationException e) {
       System.out.println("\tRead failed.");
@@ -768,7 +768,7 @@ public class App {
     //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
     DataSource digitalImage;
     try {
-      digitalImage = this.imageCreator.createUniqueImage("http://i60.tinypic.com/34xjigl.jpg");
+      digitalImage = this.imageCreator.createUniqueImage("TweedleDum.jpg");
 
       //add an artifact
       SourceDescriptionState artifact = person.addArtifact(new SourceDescription()
@@ -824,7 +824,7 @@ public class App {
       DataSource digitalImage;
 
       try {
-        digitalImage = this.imageCreator.createUniqueImage("http://i62.tinypic.com/qsrwhx.jpg");
+        digitalImage = this.imageCreator.createUniqueImage("Obituary.jpg");
 
         //add an artifact
         SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
@@ -861,22 +861,23 @@ public class App {
     DataSource digitalImage;
 
     try {
-      digitalImage = this.imageCreator.createUniqueImage("http://i61.tinypic.com/o09lkk.jpg");
+      digitalImage = this.imageCreator.createUniqueImage("TweedleDumFishing.jpg");
 
       //the artifact from which a persona will be extracted.
       SourceDescriptionState artifact = ft.addArtifact(new SourceDescription()
               .title("Tweedle Dum Fishing"),
           digitalImage
-      ).ifSuccessful();
+      ).ifSuccessful().get().ifSuccessful();
       this.artifact3 = artifact;
 
       //add the persona
       PersonState persona = artifact.addPersona(new Person()
           .name(new Name("Persona Tweedle Dum", new NamePart(NamePartType.Given, "Persona Tweedle"),
-              new NamePart(NamePartType.Surname, "Dum")).preferred(true))).ifSuccessful();
+              new NamePart(NamePartType.Surname, "Dum")).preferred(true))).ifSuccessful().get().ifSuccessful();
       this.persona = persona.get();
 
-      System.out.println("\tFind at " + persona.get().getResponse().getLocation());
+//      System.out.println("\tFind at " + persona.get().getResponse().getHeaders().get("Content-Location"));
+      System.out.println("\tFind at " + persona.get().getEntity().getPerson().getLinks().get(0).getHref());
     }
     catch (GedcomxApplicationException e) {
       System.out.println("\tCreate memory persona failed");
@@ -887,6 +888,7 @@ public class App {
       e.printStackTrace();
     }
   }
+
 
   //Create a Persona Reference
   public void createPersonaReference () {
@@ -902,7 +904,7 @@ public class App {
       try {
         //add the persona reference.
         person.addPersonaReference(persona).ifSuccessful();
-        System.out.println("\tCreating persona reference between " + person.getPerson().getId() +
+        System.out.println("\tCreating persona reference between " + person.get().getPerson().getId() +
             " and " + persona.getPerson().getId());
       }
       catch (GedcomxApplicationException e) {
@@ -931,7 +933,7 @@ public class App {
       //Create unique image, because trying to upload an image identical to an existing image will return a 409 Conflict
       DataSource digitalImage;
       try {
-        digitalImage = this.imageCreator.createUniqueImage("http://i62.tinypic.com/2vkn3mo.jpg");
+        digitalImage = this.imageCreator.createUniqueImage("FamilyPortrait.jpg");
 
         //add an artifact
         SourceDescriptionState artifact = fsMemories.addArtifact(new SourceDescription()
@@ -979,7 +981,6 @@ public class App {
     try {
       app.readFamilyTree();
       app.setUp();
-
       app.readPersonByPersistentId();
       app.readPersonByFtId(false);
       app.readPersonByFtId(true);
@@ -1011,8 +1012,8 @@ public class App {
       app.attachPhotoToPerson();
       app.readMemories();
       app.uploadArtifact();
-//      app.createMemoryPersona();
-//      app.createPersonaReference();
+      app.createMemoryPersona();
+      app.createPersonaReference();
       app.readPersonaReferences();
       app.attachPhotoToMultiplePersons();
 

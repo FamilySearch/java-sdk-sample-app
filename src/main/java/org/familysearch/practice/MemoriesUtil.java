@@ -7,25 +7,18 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
 import java.util.UUID;
 
 /**
  * @author Ryan Heaton
- * altered by Tygan Shelton
- * This class downloads an image at the given url and modifies it slightly to create a unique image.
- * This is necessary because FamilySearch uploaded sources must be unique.
+ * altered by Tygan Shelton to create unique image of given file name
  */
 public class MemoriesUtil {
 
-  public static DataSource createUniqueImage() throws IOException {
-    return createUniqueImage("TweedleDum.jpg");
-  }
-
-  public static DataSource createUniqueImage(String urlString) throws IOException {
+  public static DataSource createUniqueImage(String imageName) throws IOException {
     //Lifted from http://www.codebeach.com/2008/02/watermarking-images-in-java-servlet.html
-    URL url = new URL(urlString);
-    Image image = ImageIO.read(url);
+    File file = new File(imageName);
+    Image image = ImageIO.read(file);
     ImageIcon photo = new ImageIcon(image);
     BufferedImage bi = new BufferedImage(photo.getIconWidth(), photo.getIconHeight(), BufferedImage.TYPE_INT_RGB);
     Graphics2D g2d = (Graphics2D) bi.getGraphics();
@@ -45,7 +38,6 @@ public class MemoriesUtil {
     ImageIO.write(bi, "jpg", imageOut);
     imageOut.close();
     return new DataSource() {
-
       public InputStream getInputStream() throws IOException {
         return new ByteArrayInputStream(imageOut.toByteArray());
       }
@@ -67,7 +59,6 @@ public class MemoriesUtil {
   public static DataSource createUniqueStory() throws IOException {
     final UUID randomness = UUID.randomUUID();
     return new DataSource() {
-
       public InputStream getInputStream() throws IOException {
         return new ByteArrayInputStream(("Here is a bunch of text that is intended to tell a story about " + randomness + ".").getBytes("utf-8"));
       }
