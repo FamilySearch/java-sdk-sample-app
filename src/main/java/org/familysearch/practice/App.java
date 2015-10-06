@@ -874,7 +874,6 @@ public class App {
               new NamePart(NamePartType.Surname, "Dum")).preferred(true))).ifSuccessful().get().ifSuccessful();
       this.persona = persona.get();
 
-//      System.out.println("\tFind at " + persona.get().getResponse().getHeaders().get("Content-Location"));
       System.out.println("\tFind at " + persona.get().getEntity().getPerson().getLinks().get(0).getHref());
     }
     catch (GedcomxApplicationException e) {
@@ -938,17 +937,25 @@ public class App {
                 //with a title
                 .title("Family of Tweedle Dum"),
             digitalImage
-        ).ifSuccessful();
+        ).ifSuccessful().get().ifSuccessful();
 
-        person1.addMediaReference(artifact).ifSuccessful(); //attach to person1
-        person2.addMediaReference(artifact).ifSuccessful(); //attach to person2
-        person3.addMediaReference(artifact).ifSuccessful(); //attach to person3
+        //Add personas to artifact
+        PersonState persona1 = artifact.addPersona(new Person().name(new Name("Tweedlus Dumus", new NamePart(NamePartType.Given, "Tweedlus"),
+            new NamePart(NamePartType.Surname, "Dumus")).preferred(true))).get();
+        PersonState persona2 = artifact.addPersona(new Person().name(new Name("Fatherus Moosus", new NamePart(NamePartType.Given, "Fatherus"),
+            new NamePart(NamePartType.Surname, "Moosus")).preferred(true))).get();
+        PersonState persona3 = artifact.addPersona(new Person().name(new Name("Motherus Goosus", new NamePart(NamePartType.Given, "Motherus"),
+            new NamePart(NamePartType.Surname, "Goosus")).preferred(true))).get();
+
+        //Add personas to persons
+        person1.addPersonaReference(persona1);
+        person2.addPersonaReference(persona2);
+        person3.addPersonaReference(persona3);
 
         System.out.println("\tAttached photo at " + artifact.getResponse().getLocation() + " with" +
             "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=" + person1.getPerson().getId() +
             "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=" + person2.getPerson().getId() +
             "\n\thttps://sandbox.familysearch.org/tree/#view=ancestor&person=" + person3.getPerson().getId());
-
       }
       catch (GedcomxApplicationException e) {
         System.out.println("\tAttach to multiple persons failed");
