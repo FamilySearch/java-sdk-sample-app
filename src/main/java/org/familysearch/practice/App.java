@@ -356,30 +356,6 @@ public class App {
     }
   }
 
-  //Read Persona References
-  public void readPersonaReferences () {
-    System.out.println("Reading persona references:");
-
-    //the person on which to read the persona references.
-    PersonState person = this.person.get();
-
-    try {
-      //load the persona references for the person.
-      person.loadPersonaReferences().ifSuccessful();
-
-      //read the persona references.
-      List<EvidenceReference> personaRefs = person.getPerson().getEvidence();
-      if (null != personaRefs) {
-        org.gedcomx.common.URI uri = personaRefs.get(0).getResource();
-        System.out.println("\tFirst one found at " + uri.toString());
-      }
-    }
-    catch (GedcomxApplicationException e) {
-      System.out.println("\tLoading persona reference to read failed.");
-      e.printStackTrace();
-    }
-  }
-
   //Read Discussion References
   public void readDiscussionReferences () {
     System.out.println("Reading discussion references: ");
@@ -740,7 +716,7 @@ public class App {
     PersonState person = this.person.get();
 
     if (null != this.discussion2) {
-      DiscussionState discussion = this.discussion2;
+      DiscussionState discussion = this.discussion2.get();
 
       try {
         ((FamilyTreePersonState) person).addDiscussionReference(discussion,
@@ -886,7 +862,6 @@ public class App {
     }
   }
 
-
   //Create a Persona Reference
   public void createPersonaReference () {
     System.out.println("Creating persona reference:");
@@ -911,6 +886,30 @@ public class App {
     }
     else {
       System.out.println("\tCannot create persona reference: persona never created in createMemoryPersona()");
+    }
+  }
+
+  //Read Persona References
+  public void readPersonaReferences () {
+    System.out.println("Reading persona references:");
+
+    //the person on which to read the persona references.
+    PersonState person = this.person.get();
+
+    try {
+      //load the persona references for the person.
+      person.loadPersonaReferences().ifSuccessful().get().ifSuccessful();
+
+      //read the persona references.
+      List<EvidenceReference> personaRefs = person.getPerson().getEvidence();
+      if (null != personaRefs) {
+        org.gedcomx.common.URI uri = personaRefs.get(0).getResource();
+        System.out.println("\tFirst one found at " + uri.toString());
+      }
+    }
+    catch (GedcomxApplicationException e) {
+      System.out.println("\tLoading persona reference to read failed.");
+      e.printStackTrace();
     }
   }
 
