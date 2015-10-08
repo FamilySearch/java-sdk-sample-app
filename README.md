@@ -18,6 +18,7 @@ Requirements:
 
 * git
 * Java 1.7
+* FamilySearch API Java SDK
 
 Steps:
 
