@@ -22,7 +22,7 @@ Requirements:
 
 Steps:
 
-1.  Clone the repository at https://github.com/FamilySearch/SampleApp.git
+1.  Clone the repository at https://github.com/FamilySearch/java-sdk-sample-app
 2.  Add the SampleApp project as a Maven project. In Intellij, you can do this by right-clicking on the pom.xml and selecting "Add as Maven project" in the drop-down menu.
 3.  Setup the SDK as 1.7. In Intellij, you can do this by opening the Project Structure dialog with Ctrl+Shift+Alt+S, selecting 1.7 under Project SDK in the Project tab, and clicking "OK."
 4.  Setup the target release to 1.6. In Intellij, you can do this by going to Settings, going to
