@@ -10,81 +10,13 @@
 
     <properties>
         <gedcomx.version>1.0.148.M1</gedcomx.version>
-        <jersey.version>1.17.1</jersey.version>
-        <jackson.version>1.8.0</jackson.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.sun.jersey.contribs</groupId>
-            <artifactId>jersey-multipart</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-core</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-jaxrs</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-xc</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.gedcomx.extensions.familysearch</groupId>
             <artifactId>familysearch-api-client</artifactId>
             <version>${gedcomx.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.gedcomx.extensions.familysearch</groupId>
-            <artifactId>familysearch-api-model</artifactId>
-            <version>${gedcomx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.gedcomx</groupId>
-            <artifactId>gedcomx-atom</artifactId>
-            <version>${gedcomx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.gedcomx</groupId>
-            <artifactId>gedcomx-model</artifactId>
-            <version>${gedcomx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.gedcomx</groupId>
-            <artifactId>gedcomx-rs-client</artifactId>
-            <version>${gedcomx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.gedcomx</groupId>
-            <artifactId>gedcomx-rs-rt-support</artifactId>
-            <version>${gedcomx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.gedcomx</groupId>
-            <artifactId>gedcomx-rt-support</artifactId>
-            <version>${gedcomx.version}</version>
-        </dependency>
-
     </dependencies>
 </project>
