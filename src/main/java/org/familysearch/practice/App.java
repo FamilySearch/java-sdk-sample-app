@@ -11,7 +11,7 @@ import org.gedcomx.common.EvidenceReference;
 import org.gedcomx.common.Note;
 import org.gedcomx.conclusion.*;
 import org.gedcomx.rs.client.*;
-import org.gedcomx.rs.client.util.GedcomxPersonSearchQueryBuilder;
+import org.gedcomx.rs.client.util.PersonSearchQueryBuilder;
 import org.gedcomx.source.SourceDescription;
 import org.gedcomx.source.SourceReference;
 import org.gedcomx.types.FactType;
@@ -131,7 +131,7 @@ public class App {
     FamilySearchFamilyTree ft = this.ft;
 
     //put together a search query
-    GedcomxPersonSearchQueryBuilder query = new GedcomxPersonSearchQueryBuilder()
+    PersonSearchQueryBuilder query = new PersonSearchQueryBuilder()
         //for a John Smith
         .name("John Smith")
             //born 1/1/1900
