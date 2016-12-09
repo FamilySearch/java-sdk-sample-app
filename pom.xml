@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <gedcomx.version>2.1.0</gedcomx.version>
+        <gedcomx.version>2.6.0</gedcomx.version>
     </properties>
 
     <dependencies>
